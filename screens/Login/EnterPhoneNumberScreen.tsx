@@ -6,45 +6,173 @@ import {
   TouchableOpacity,
 } from "react-native";
 import APP_COLORS from "../../constants/color";
-import AntDesign from "@expo/vector-icons/AntDesign";
-import { useState } from "react";
+import { useState,useContext, useEffect } from "react";
+import { DataContext } from "../../App";
 import { useNavigation } from "@react-navigation/native";
 import { navigation } from "../../types/stackParamList";
+import Toast from 'react-native-toast-message'
+import axios from "axios";
+
 export default function EnterPhoneNumberScreen() {
   const navigation = useNavigation<navigation<"LoginStack">>();
-
+  const [toggle,setToggle] = useState(true);
   const [phoneNumber, setPhoneNumber] = useState("");
+  const [password, setPassword] = useState("");
+  const [email, setEmail] = useState("");
 
-  const handleContinue = () => {
-    navigation.navigate("VerifyOTP");
+  const {data,setData} = useContext(DataContext);
+
+  const validateEmail = (email) => {
+    const regex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    return regex.test(email);
   };
+
+  const handleContinue = async () => {
+    if(!email) {
+      Toast.show({
+        type: "info",
+        text1: "Vui lòng nhập email!"
+      })
+      return;
+    }
+
+    if (!validateEmail(email)) {
+      Toast.show({
+        type: 'error',
+        text1: "Email không đúng hoặc không tồn tại!"
+      });
+      return;
+    }
+
+    try {
+      await axios.post('http://192.168.31.45:9999/api/send-verification',{email})
+      .then(response => {
+        if(response && response.data) {
+          if(!response.data.success) {
+            Toast.show({
+              type: 'error',
+              text1: "Email không đúng hoặc không tồn tại!"
+            });
+            return;
+          }
+
+          setData({...data,email});
+          navigation.navigate("VerifyOTP");
+        }
+      })
+      .catch(error => {
+        Toast.show({
+          type: 'error',
+          text1: "Email không đúng hoặc không tồn tại!"
+        });
+      });
+    } catch (error) {
+      Toast.show({
+        type: 'error',
+        text1: "Email không đúng hoặc không tồn tại!"
+      });
+    }
+  };
+
+
+  const handleLogin = async () => {
+    if(!password || !phoneNumber ) {
+        Toast.show({
+            type: 'error',
+            text1: "Nhập tất cả thông tin để đăng nhập!"
+        });
+      return;
+    }
+
+    try {
+        await axios.post('http://192.168.31.45:9999/api/loginUser',{sdt: phoneNumber,matkhau: password})
+        .then(response => {
+          if(response && response.data) {
+            if(response.status !== 200) {
+              Toast.show({
+                type: 'error',
+                text1: "Tài khoản hoặc mật khẩu không đúng!"
+              });
+              return;
+            } else {
+                setData({...data,id_nguoidung: response.data.data.ID_NguoiDung})
+                navigation.navigate("RootTab");
+            }
+          }
+        })
+        .catch(error => {
+            Toast.show({
+                type: 'error',
+                text1: "Tài khoản hoặc mật khẩu không đúng!"
+              });
+              return;
+        });
+      } catch (error) {
+        Toast.show({
+            type: 'error',
+            text1: "Tài khoản hoặc mật khẩu không đúng!"
+          });
+          return;
+      }
+      
+  }
+
+
   return (
     <View style={styles.container}>
       <View style={styles.content}>
-        <View style={styles.header}>
-          <TouchableOpacity onPress={() => navigation.goBack()}>
-            <AntDesign name="close" size={24} color={APP_COLORS.black} />
-          </TouchableOpacity>
-        </View>
         <View style={styles.titleContainer}>
-          <Text style={styles.title}>Số điện thoại của bạn!</Text>
+          <Text style={styles.title}>Thông tin đăng {toggle ? "nhập" :"kí"} nhập của bạn!</Text>
           <Text style={styles.description}>
-            Mã bảo mật gồm 6 chữ số sẽ đc gửi qua SMS để xác minh số điện thoại
-            di động của bạn.
+            Nhập tên đăng nhập là số điện thoại của bạn và mật khẩu.
           </Text>
         </View>
         <View style={styles.inputContainer}>
-          <TextInput
-            style={styles.input}
-            placeholder="Nhập số điện thoại"
-            placeholderTextColor={APP_COLORS.lightGray}
-          />
+          {toggle ?
+            <View>
+              <TextInput
+                style={styles.input}
+                onChangeText={(text) => setPhoneNumber(text)}
+                placeholder="Nhập số điện thoại"
+                placeholderTextColor={APP_COLORS.lightGray}
+              />
+              <TextInput
+                style={styles.input}
+                placeholder="Nhập mật khẩu"
+                onChangeText={(text) => setPassword(text)}
+                placeholderTextColor={APP_COLORS.lightGray}
+              />
+            </View>
+            :
+            <View>
+              <TextInput
+                style={styles.input}
+                value={email}
+                onChangeText={(text) => setEmail(text)}
+                placeholder="Nhập Email để đăng kí"
+                placeholderTextColor={APP_COLORS.lightGray}
+              />
+            </View>
+          }
+        <View>
+          <Text>Nếu bạn chưa có tài khoản</Text>
+          <TouchableOpacity onPress={()=>setToggle(!toggle)}><Text >ĐĂNG {toggle ? "NHẬP" :"KÍ"}</Text></TouchableOpacity>
         </View>
+        </View>
+        
+        {toggle ?
         <View style={styles.buttonContainer}>
-          <TouchableOpacity style={styles.button} onPress={handleContinue}>
-            <Text style={styles.buttonText}>Tiếp tục</Text>
+          <TouchableOpacity style={styles.button} onPress={handleLogin}>
+            <Text style={styles.buttonText}>Đăng nhập</Text>
           </TouchableOpacity>
         </View>
+        :
+          <View style={styles.buttonContainer}>
+            <TouchableOpacity style={styles.button} onPress={handleContinue}>
+              <Text style={styles.buttonText}>Tiếp tục</Text>
+            </TouchableOpacity>
+          </View>
+        }
         <View style={styles.buttonContainer}>
           <TouchableOpacity
             style={styles.termsAndConditionsContainer}
@@ -101,6 +229,7 @@ const styles = StyleSheet.create({
   },
   input: {
     borderWidth: 1,
+    marginVertical: 5,
     borderColor: APP_COLORS.lightGray,
     borderRadius: 8,
     padding: 16,

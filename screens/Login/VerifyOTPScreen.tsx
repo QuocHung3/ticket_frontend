@@ -7,39 +7,124 @@ import {
   Keyboard,
 } from "react-native";
 import APP_COLORS from "../../constants/color";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState ,useContext} from "react";
+import { DataContext } from "../../App";
 import { useNavigation } from "@react-navigation/native";
 import { navigation } from "../../types/stackParamList";
 import Ionicons from "@expo/vector-icons/Ionicons";
+import axios from "axios";
+import Toast from "react-native-toast-message";
+
+
 export default function VerifyOTPScreen() {
   const navigation = useNavigation<navigation<"AccountStack">>();
+  const [authText,setAuthText] = useState("");
+  const [confirm,setConfirm] = useState(false);
+  const [phone,setPhone] = useState("");
+  const [name,setName] = useState("");
+  const [password,setPassword] = useState("");
+  const [passwordTest,setPasswordTest] = useState("");
 
-  const [phoneNumber, setPhoneNumber] = useState("");
+  const {data,setData} = useContext(DataContext);
 
-  const [otp, setOtp] = useState<string[]>([]);
-
-  const inputRefs = useRef<TextInput[]>([]);
-
-  const onChangeText = (index: number, text: string) => {
-    setOtp((prev) => {
-      const newOtp = [...prev];
-      newOtp[index] = text.slice(0, 1);
-      return newOtp;
-    });
-    if (text.length === 1 && index < 5) {
-      inputRefs.current[index + 1].focus();
-    }
-    if (text.length === 0 && index > 0) {
-      inputRefs.current[index - 1].focus();
-    }
+  const validatePhoneNumber = (phoneNumber) => {
+    const regex = /^(?:\+?\d{1,3})?[-.\s]?\(?\d{1,4}?\)?[-.\s]?\d{1,4}[-.\s]?\d{1,4}[-.\s]?\d{1,4}$/;
+    return regex.test(phoneNumber);
   };
-  const handleVerify = () => {
-    navigation.navigate("Account");
-  };
+  
+  const handleVerify = async () => {
+    if(!authText) {
+      Toast.show({
+        type: "info",
+        text1: "Vui lòng nhập mã xác nhận!"
+      })
+      return;
+    }
 
-  useEffect(() => {
-    inputRefs.current[0].focus();
-  }, []);
+    if(!data["email"]) {
+      Toast.show({
+        type: "error",
+        text1: "Có lỗi, vui lòng thử lại!"
+      })
+      return;
+    }
+    try {
+      await axios.post('http://192.168.31.45:9999/api/verify-code',{email:data["email"],code: authText})
+      .then(response => {
+        if(response && response.data) {
+          if(!response.data.success) {
+            Toast.show({
+              type: 'error',
+              text1: "Mã không đúng!"
+            });
+            return;
+          } else {
+            console.log("Xác thực mã thành công");
+            setConfirm(true);
+          }
+        }
+      })
+      .catch(error => {
+        console.error(error);
+      });
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
+  const handleAuthSuccess = async () => {
+    if (!validatePhoneNumber(phone)) {
+      Toast.show({
+        type: 'error',
+        text1: "Số điện thoại không hợp lệ!"
+      });
+      return;
+    }
+
+    if(!password || !passwordTest || !phone ||!name ) {
+      Toast.show({
+        type: 'error',
+        text1: "Nhập tất cả thông tin để đăng kí!"
+      });
+      return;
+    }
+
+    if(password !== passwordTest) {
+      Toast.show({
+        type: 'error',
+        text1: "Mật khẩu không giống nhau!"
+      });
+      return;
+    }
+
+    //  api đăng kí tài khoản
+    try {
+      await axios.post('http://192.168.31.45:9999/api/addUser',{email:data["email"],matkhau: password,sdt:phone,ten:name})
+      .then(response => {
+        if(response && response.data) {
+          if(response.status !== 200) {
+            Toast.show({
+              type: 'error',
+              text1: "Có lỗi, thử lại!"
+            });
+            return;
+          } else {
+            Toast.show({
+              type: 'success',
+              text1: "Tạo tài khoản thành công!"
+            });
+
+            navigation.navigate("EnterPhoneNumber");
+          }
+        }
+      })
+      .catch(error => {
+        console.error(error);
+      });
+    } catch (error) {
+      console.log(error)
+    }
+  }
 
   return (
     <View style={styles.container}>
@@ -52,100 +137,63 @@ export default function VerifyOTPScreen() {
         <View style={styles.titleContainer}>
           <Text style={styles.title}>Xác thực số điện thoại</Text>
           <Text style={styles.description}>
-            Vui lòng nhập mã bảo mật gồm 6 chữ số mà chúng tôi vừa gửi cho bạn
-            vào số (+8409090909)
+            Nhập mã xác thực gồm 6 kí tự mà chúng tôi vừa gửi qua Email cho bạn
           </Text>
         </View>
         <View style={styles.inputContainer}>
-          <TextInput
-            ref={(ref) => {
-              if (ref) {
-                inputRefs.current[0] = ref;
-              }
-            }}
-            cursorColor={APP_COLORS.primary}
-            value={otp[0]}
-            onChangeText={(text) => onChangeText(0, text)}
-            style={styles.otpInput}
-            keyboardType="numeric"
-            placeholderTextColor={APP_COLORS.lightGray}
-          />
-          <TextInput
-            ref={(ref) => {
-              if (ref) {
-                inputRefs.current[1] = ref;
-              }
-            }}
-            value={otp[1]}
-            cursorColor={APP_COLORS.primary}
-            onChangeText={(text) => onChangeText(1, text)}
-            style={styles.otpInput}
-            keyboardType="numeric"
-            placeholderTextColor={APP_COLORS.lightGray}
-          />
-          <TextInput
-            ref={(ref) => {
-              if (ref) {
-                inputRefs.current[2] = ref;
-              }
-            }}
-            cursorColor={APP_COLORS.primary}
-            value={otp[2]}
-            onChangeText={(text) => onChangeText(2, text)}
-            style={styles.otpInput}
-            keyboardType="numeric"
-            placeholderTextColor={APP_COLORS.lightGray}
-          />
-          <TextInput
-            ref={(ref) => {
-              if (ref) {
-                inputRefs.current[3] = ref;
-              }
-            }}
-            value={otp[3]}
-            cursorColor={APP_COLORS.primary}
-            onChangeText={(text) => onChangeText(3, text)}
-            style={styles.otpInput}
-            keyboardType="numeric"
-            placeholderTextColor={APP_COLORS.lightGray}
-          />
-          <TextInput
-            ref={(ref) => {
-              if (ref) {
-                inputRefs.current[4] = ref;
-              }
-            }}
-            value={otp[4]}
-            cursorColor={APP_COLORS.primary}
-            onChangeText={(text) => onChangeText(4, text)}
-            style={styles.otpInput}
-            keyboardType="numeric"
-            placeholderTextColor={APP_COLORS.lightGray}
-          />
-          <TextInput
-            ref={(ref) => {
-              if (ref) {
-                inputRefs.current[5] = ref;
-              }
-            }}
-            value={otp[5]}
-            cursorColor={APP_COLORS.primary}
-            onChangeText={(text) => onChangeText(5, text)}
-            style={styles.otpInput}
-            keyboardType="numeric"
-            placeholderTextColor={APP_COLORS.lightGray}
-          />
+          {!confirm ? 
+            <TextInput 
+              placeholder="Nhập mã xác thực"
+              value={authText}
+              onChangeText={(text) => setAuthText(text)}
+            />
+          : 
+            <View>
+              <TextInput 
+              placeholder="Nhập tên..."
+              value={name}
+              onChangeText={(text) => setName(text)}
+              /> 
+              <Text>Số điện thoại và mật khẩu dùng trong những lần đăng nhập</Text>
+              <TextInput 
+              placeholder="Nhập số điện thoại..."
+              value={phone}
+              onChangeText={(text) => setPhone(text)}
+              /> 
+              <TextInput 
+              placeholder="Mật khẩu"
+              value={password}
+              onChangeText={(text) => setPassword(text)}
+              /> 
+              <TextInput 
+              placeholder="Nhập lại mật khẩu"
+              value={passwordTest}
+              onChangeText={(text) => setPasswordTest(text)}
+              /> 
+            </View>
+          }
         </View>
+
+        {!confirm ?
+        <View>
+          <View style={styles.buttonContainer}>
+            <TouchableOpacity style={styles.button} onPress={handleVerify}>
+              <Text style={styles.buttonText}>Xác thực</Text>
+            </TouchableOpacity>
+          </View>
+          <View style={styles.buttonContainer}>
+            <TouchableOpacity style={styles.termsAndConditionsContainer}>
+              <Text style={styles.termsAndConditions}>Gửi lại</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+        : 
         <View style={styles.buttonContainer}>
-          <TouchableOpacity style={styles.button} onPress={handleVerify}>
-            <Text style={styles.buttonText}>Xác thực</Text>
+          <TouchableOpacity style={styles.button} onPress={handleAuthSuccess}>
+            <Text style={styles.buttonText}>Xác Nhận</Text>
           </TouchableOpacity>
         </View>
-        <View style={styles.buttonContainer}>
-          <TouchableOpacity style={styles.termsAndConditionsContainer}>
-            <Text style={styles.termsAndConditions}>Gửi lại</Text>
-          </TouchableOpacity>
-        </View>
+        }
       </View>
     </View>
   );

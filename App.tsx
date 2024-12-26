@@ -2,7 +2,8 @@ import React, { useState, createContext } from 'react';
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import Naivgation from "./router";
 import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
-import { ToastProvider } from 'react-native-toast-notifications'
+import { ToastProvider } from 'react-native-toast-notifications';
+import Toast from 'react-native-toast-message';
 
 export const DataContext = createContext({
   data: {
@@ -21,6 +22,7 @@ export default function App() {
         <GestureHandlerRootView style={{ flex: 1 }}>
           <BottomSheetModalProvider>
             <Naivgation />
+            <Toast />
           </BottomSheetModalProvider>
         </GestureHandlerRootView>
       </ToastProvider>

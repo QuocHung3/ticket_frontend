@@ -1,9 +1,15 @@
 import { View, Text, StyleSheet } from "react-native";
-import React from "react";
+import React,{useContext} from "react";
+import { DataContext } from "../../../App";
 import APP_COLORS from "../../../constants/color";
 import tinycolor from "tinycolor2";
 
 const TicketCard = () => {
+  const {data,setData} =useContext(DataContext);
+
+  const [date, time] = data['ngayKhoiHanh'].split(" ");
+  const [hour, minute] = time.split(":").map(Number);
+
   return (
     <View style={styles.wrapper}>
       <View style={[styles.notch, styles.leftNotch]} />
@@ -14,16 +20,17 @@ const TicketCard = () => {
         <View style={styles.upperSection}>
           <View>
             <Text style={styles.label}>Khởi hành</Text>
-            <Text style={styles.time}>17:45</Text>
-            <Text style={styles.label}>Thứ 7</Text>
-            <Text style={styles.date}>23/11/2024</Text>
+            <Text style={styles.time}>{hour}:{minute}</Text>
+            <Text style={styles.date}>{date}</Text>
           </View>
 
           <View style={styles.divider} />
 
           <View>
             <Text style={styles.label}>Ghế</Text>
-            <Text style={styles.seat}>B4T</Text>
+            {data['viTriCho'].map((value,index) => 
+              <Text key={index} style={styles.seat}>{value}</Text>
+            )}
             <Text style={styles.label}>Loại xe</Text>
             <Text style={styles.busType}>Limousine 34 giường</Text>
           </View>
@@ -33,12 +40,12 @@ const TicketCard = () => {
 
         <View style={styles.lowerSection}>
           <View>
-            <Text style={styles.location}>Sài Gòn</Text>
+            <Text style={styles.location}>{data["noiDi"]}</Text>
             <Text style={styles.priceLabel}>Giá vé</Text>
           </View>
           <View style={styles.rightAlign}>
-            <Text style={styles.location}>Đắk Lắk (MT)</Text>
-            <Text style={styles.price}>300.000đ</Text>
+            <Text style={styles.location}>{data["noiDen"]}</Text>
+            <Text style={styles.price}>{data["giaVe"]}đ</Text>
           </View>
         </View>
       </View>

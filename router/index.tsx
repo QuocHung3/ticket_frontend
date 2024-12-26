@@ -18,6 +18,13 @@ const Naivgation = () => {
   return (
     <NavigationContainer>
       <Stack.Navigator screenOptions={{ headerShown: false }}>
+        <Stack.Screen
+            name="LoginStack"
+            component={LoginStack}
+            options={{
+              animation: "slide_from_bottom",
+            }}
+          />
         <Stack.Screen name="RootTab" component={RootTab} />
         <Stack.Screen name="TicketInfo" component={TicketInfoScreen} />
         <Stack.Screen
@@ -55,13 +62,7 @@ const Naivgation = () => {
             animation: "ios_from_right",
           }}
         />
-        <Stack.Screen
-          name="LoginStack"
-          component={LoginStack}
-          options={{
-            animation: "slide_from_bottom",
-          }}
-        />
+        
         <Stack.Screen name="ChooseLocation" component={ChooseLocationScreen} />
       </Stack.Navigator>
     </NavigationContainer>

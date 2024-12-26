@@ -8,32 +8,25 @@ import {
   Animated,
   ViewStyle,
 } from "react-native";
-import Ionicons from "@expo/vector-icons/Ionicons";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useContext, useRef, useState } from "react";
+import { DataContext } from "../../App";
 import Header from "../../components/common/Header";
 import BookingStep from "./components/BookingStep";
 import APP_COLORS from "../../constants/color";
-import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import TicketCard from "./components/TicketCard";
 import { useNavigation } from "@react-navigation/native";
 import { navigation } from "../../types/stackParamList";
+
+
 const VerifyPayment = () => {
+  const {data,setData} = useContext(DataContext);
+
   const bankInfo = {
     bank: "VIETINBANK",
     accountHolder: "TUAN TRUNG",
-    accountNumber: "111V90677380",
-    amount: "300.000đ",
+    accountNumber: "111V90677380"
   };
 
-  const ticketInfo = {
-    time: "17:45",
-    date: "Thứ 6 22/11/2024",
-    busType: "C5T",
-    vehicleType: "Limousine 34 giường",
-    from: "Sài Gòn",
-    to: "Đắk Lắk (MT)",
-    price: "300.000đ",
-  };
   const animationHeight = useRef(new Animated.Value(0)).current;
   const [isOpen, setIsOpen] = useState(false);
 
@@ -56,141 +49,29 @@ const VerifyPayment = () => {
     borderColor: APP_COLORS.primary,
   });
 
+  const handleBackHome =() => {
+    setData({...data["id_nguoidung"]})
+
+    navigation.navigate("Home")
+  }
+
   const navigation = useNavigation<navigation<"BookingStack">>();
   return (
     <View style={styles.container}>
-      <Header title="Đang xác minh thanh toán" />
+      <Header title="Thanh toán thành công" />
       <BookingStep currentStep={4} />
       <ScrollView showsVerticalScrollIndicator={false}>
         <View style={styles.content}>
-          <TicketCard />
-
-          <View
-            style={{
-              backgroundColor: "#ffffff",
-              paddingHorizontal: 16,
-              borderRadius: 16,
-              paddingVertical: 16,
-            }}
-          >
-            <View style={styles.noteWrapper}>
-              <View style={styles.noteContainer}>
-                <Ionicons name="information-circle" size={24} color="gray" />
-                <View style={{ flex: 1 }}>
-                  <Text style={styles.noteSub}>
-                    Nếu giao dịch không thành công, vé sẽ huỷ sau 10:49
-                  </Text>
-                  <Text style={styles.noteSub}>
-                    Nếu giao dịch chưa được xác minh trong 5 phút sau khi chuyển
-                    khoản, vui lòng liên hệ 190012423 để được xử lý kịp thời
-                  </Text>
-                </View>
-              </View>
-            </View>
-            <View
-              style={{
-                marginVertical: 16,
-              }}
-            >
-              <Text style={{ fontSize: 16 }}>
-                Hệ thống đang tiến hành xác minh giao dịch chuyển khoản, vui
-                lòng làm theo Hướng đãn thanh toán bên dưới để hoàn tất thanh
-                toán.
-              </Text>
-            </View>
-            {/* Payment Instructions */}
-            <Text style={styles.sectionTitle}>Hướng dẫn thanh toán</Text>
-            <Text style={styles.instructionText}>
-              Bạn vui lòng chuyển khoản số tiền {bankInfo.amount} theo hướng dẫn
-              dưới đây
-            </Text>
-
-            {/* QR Payment Section */}
-            <View style={styles.qrSection}>
-              <Text style={styles.paymentMethod}>Thanh toán bằng mã QR</Text>
-              <View style={styles.qrContainer}>
-                <Image
-                  source={require("../../assets/app_img/qr-code.png")}
-                  style={styles.qrImage}
-                />
-                <TouchableOpacity style={styles.saveButton}>
-                  <MaterialIcons
-                    name="download"
-                    size={24}
-                    color={APP_COLORS.white}
-                  />
-                  <Text style={styles.saveButtonText}>Lưu ảnh</Text>
-                </TouchableOpacity>
-              </View>
-            </View>
-
-            {/* Bank Account Details */}
-            <View style={styles.bankDetailsHeader}>
-              <Text style={styles.bankDetailsTitle}>Không thể quét mã QR?</Text>
-              <TouchableOpacity
-                style={styles.bankDetailsToggle}
-                onPress={toggleAccordion}
-              >
-                <Text style={styles.bankDetailsToggle}>
-                  {isOpen ? "Thu gọn" : "Tự nhập thông tin"}
-                </Text>
-              </TouchableOpacity>
-            </View>
-            <Animated.View style={{ height: animationHeight }}>
-              <View style={bankDetailsStyle(isOpen)}>
-                <View style={styles.bankInfoRow}>
-                  <Text style={styles.bankLabel}>Ngân hàng</Text>
-                  <Text style={styles.bankValue}>{bankInfo.bank}</Text>
-                </View>
-                <View style={styles.bankInfoRow}>
-                  <Text style={styles.bankLabel}>Chủ tài khoản</Text>
-                  <Text style={styles.bankValue}>{bankInfo.accountHolder}</Text>
-                </View>
-                <View style={styles.bankInfoColumn}>
-                  <Text style={styles.bankLabel}>Số tài khoản</Text>
-                  <View style={styles.bankValueContainer}>
-                    <Text style={styles.bankValue}>
-                      {bankInfo.accountNumber}
-                    </Text>
-                    <TouchableOpacity>
-                      <Text style={styles.copyButtonText}>Sao chép</Text>
-                    </TouchableOpacity>
-                  </View>
-                </View>
-                <View style={styles.bankInfoColumn}>
-                  <Text style={styles.bankLabel}>Tổng tiền</Text>
-                  <View style={styles.bankValueContainer}>
-                    <Text style={styles.bankValue}>{bankInfo.amount}</Text>
-                    <TouchableOpacity>
-                      <Text style={styles.copyButtonText}>Sao chép</Text>
-                    </TouchableOpacity>
-                  </View>
-                </View>
-                <View style={styles.bankInfoRow}>
-                  <Text style={styles.bankLabel}>Nội dung</Text>
-                  <Text style={styles.bankValue}>Không bắt buộc</Text>
-                </View>
-              </View>
-            </Animated.View>
-          </View>
+          <TicketCard /> 
         </View>
       </ScrollView>
 
       <View style={styles.bottomButtons}>
         <TouchableOpacity
           style={styles.paymentLatterButton}
-          onPress={() => navigation.navigate("Home")}
+          onPress={handleBackHome}
         >
           <Text style={styles.paymentLatterButtonText}>Về trang chủ</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={styles.payedButton}
-          onPress={() =>
-            navigation.navigate("BookingStack", { screen: "FindTrip" })
-          }
-        >
-          <Text style={styles.payedButtonText}>Đặt chuyến về</Text>
         </TouchableOpacity>
       </View>
     </View>

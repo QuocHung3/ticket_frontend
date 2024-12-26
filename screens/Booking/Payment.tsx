@@ -9,7 +9,8 @@ import {
   Animated,
   ViewStyle,
 } from "react-native";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState ,useContext} from "react";
+import { DataContext } from "../../App";
 import Header from "../../components/common/Header";
 import BookingStep from "./components/BookingStep";
 import APP_COLORS from "../../constants/color";
@@ -17,6 +18,9 @@ import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import TicketCard from "./components/TicketCard";
 import { useNavigation } from "@react-navigation/native";
 import { navigation } from "../../types/stackParamList";
+import axios from "axios";
+import Toast from "react-native-toast-message";
+
 const bankInfo = {
   bank: "VIETINBANK",
   accountHolder: "TUAN TRUNG",
@@ -24,19 +28,17 @@ const bankInfo = {
   amount: "300.000đ",
 };
 
-const ticketInfo = {
-  time: "17:45",
-  date: "Thứ 6 22/11/2024",
-  busType: "C5T",
-  vehicleType: "Limousine 34 giường",
-  from: "Sài Gòn",
-  to: "Đắk Lắk (MT)",
-  price: "300.000đ",
-};
+
 const Payment = () => {
   const navigation = useNavigation<navigation<"BookingStack">>();
   const animationHeight = useRef(new Animated.Value(0)).current;
   const [isOpen, setIsOpen] = useState(false);
+  const {data,setData} = useContext(DataContext);
+
+  useEffect(() => {
+    console.log(data);
+  },[])
+  
 
   const toggleAccordion = () => {
     const finalValue = isOpen ? 0 : 350;
@@ -64,6 +66,64 @@ const Payment = () => {
     }, 1000);
     return () => clearInterval(interval);
   }, []);
+
+  const handlePayment = async () => {
+    try {
+      const dataVe = {
+        id_nguoiDung: data["id_nguoidung"],
+        id_chuyenXe: data["idChuyen"],
+        trangThaiVe: "Đã đặt",
+        soGhe: data["viTriCho"],
+        gioKH: data["ngayKhoiHanh"],
+        viTriCho: data["viTriCho"],
+        hinhThuc: "Chuyển khoản", 
+        soTien: data["giaVe"],
+        trangThaiThanhToan: "Đã thanh toán",
+        noiDi: data["noiDi"],
+        noiDen: data["noiDen"],
+        diemDon: data["diemDon"],
+        diemTra: data["diemTra"],
+        sdt: data["sdt"],
+        ghiChu: data["ghiChu"]
+      }
+
+      await axios.post('http://192.168.31.45:9999/api/addTicket',dataVe)
+      .then(response => {
+        if(response && response.data) {
+          if(response.status !== 200) {
+            Toast.show({
+              type: 'error',
+              text1: "Có lỗi sảy ra, thử lại!"
+            });
+            return;
+          } else {
+            Toast.show({
+              type: 'success',
+              text1: "Đặt vé thành công!"
+            });
+          }
+        }
+      })
+      .catch(error => {
+        
+          Toast.show({
+              type: 'error',
+              text1: "Có lỗi!"
+            });
+            return;
+      });
+    } catch (error) {
+      console.log(error)
+      Toast.show({
+          type: 'error',
+          text1: "Có lỗi!"
+        });
+        return;
+    }
+    
+    navigation.navigate("VerifyPayment");
+  }
+
   return (
     <View style={styles.container}>
       <Header title="Thanh toán" />
@@ -83,7 +143,7 @@ const Payment = () => {
           {/* Payment Instructions */}
           <Text style={styles.sectionTitle}>Hướng dẫn thanh toán</Text>
           <Text style={styles.instructionText}>
-            Bạn vui lòng chuyển khoản số tiền {bankInfo.amount} theo hướng dẫn
+            Bạn vui lòng chuyển khoản số tiền {data['giaVe']}đ theo hướng dẫn
             dưới đây
           </Text>
 
@@ -140,7 +200,7 @@ const Payment = () => {
               <View style={styles.bankInfoColumn}>
                 <Text style={styles.bankLabel}>Tổng tiền</Text>
                 <View style={styles.bankValueContainer}>
-                  <Text style={styles.bankValue}>{bankInfo.amount}</Text>
+                  <Text style={styles.bankValue}>{data['giaVe']}</Text>
                   <TouchableOpacity>
                     <Text style={styles.copyButtonText}>Sao chép</Text>
                   </TouchableOpacity>
@@ -174,11 +234,11 @@ const Payment = () => {
             <Text style={styles.totalTitle}>Số tiền cần thanh toán</Text>
             <View style={styles.priceRow}>
               <Text style={styles.priceLabel}>Giá vé</Text>
-              <Text style={styles.priceAmount}>{ticketInfo.price}</Text>
+              <Text style={styles.priceAmount}>{data["giaVe"]}đ</Text>
             </View>
             <View style={styles.totalRow}>
               <Text style={styles.totalLabel}>Tổng tiền</Text>
-              <Text style={styles.totalAmount}>{ticketInfo.price}</Text>
+              <Text style={styles.totalAmount}>{data["giaVe"]}đ</Text>
             </View>
           </View>
         </View>
@@ -187,9 +247,7 @@ const Payment = () => {
       <View style={styles.bottomButtons}>
         <TouchableOpacity
           style={styles.payedButton}
-          onPress={() => {
-            navigation.navigate("VerifyPayment");
-          }}
+          onPress={handlePayment}
         >
           <Text style={styles.payedButtonText}>Tôi đã chuyển khoản</Text>
         </TouchableOpacity>

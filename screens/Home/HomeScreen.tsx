@@ -33,6 +33,12 @@ const HomeScreen = () => {
     return ngay.toLocaleDateString();
   });
 
+  const [ngayVe, setNgayVe] = useState(()=> {
+    const ngay = new Date();
+    ngay.setDate(ngay.getDate() + 1)
+    return ngay.toLocaleDateString();
+  });
+
   
   useEffect(() => {
     try {
@@ -92,6 +98,10 @@ const HomeScreen = () => {
   useEffect(() => {
     if(data && data["ngayKhoiHanh"]){
       setNgayKhoiHanh(data["ngayKhoiHanh"]);
+    }
+
+    if(data && data["ngayVe"]){
+      setNgayVe(data["ngayVe"]);
     }
   },[data])
   
@@ -234,7 +244,7 @@ const HomeScreen = () => {
                   style={styles.datePickerButton}
                 >
                   <Text style={styles.lightGrayText}>Ngày về</Text>
-                  <Text style={styles.dateText}>17/11/2024</Text>
+                  <Text style={styles.dateText}>{data['ngayVe']}</Text>
                 </TouchableOpacity>
               </View>
             </View>
