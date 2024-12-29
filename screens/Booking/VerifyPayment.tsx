@@ -21,36 +21,8 @@ import { navigation } from "../../types/stackParamList";
 const VerifyPayment = () => {
   const {data,setData} = useContext(DataContext);
 
-  const bankInfo = {
-    bank: "VIETINBANK",
-    accountHolder: "TUAN TRUNG",
-    accountNumber: "111V90677380"
-  };
-
-  const animationHeight = useRef(new Animated.Value(0)).current;
-  const [isOpen, setIsOpen] = useState(false);
-
-  const toggleAccordion = () => {
-    const finalValue = isOpen ? 0 : 350;
-    setIsOpen(!isOpen);
-
-    Animated.timing(animationHeight, {
-      toValue: finalValue,
-      duration: 300,
-      useNativeDriver: false,
-    }).start();
-  };
-
-  const bankDetailsStyle = (isOpen: boolean): ViewStyle => ({
-    padding: 16,
-    borderRadius: 8,
-    marginBottom: 16,
-    borderWidth: isOpen ? 1 : 0,
-    borderColor: APP_COLORS.primary,
-  });
-
   const handleBackHome =() => {
-    setData({...data["id_nguoidung"]})
+    setData({id_nguoidung:data["id_nguoidung"]})
 
     navigation.navigate("Home")
   }

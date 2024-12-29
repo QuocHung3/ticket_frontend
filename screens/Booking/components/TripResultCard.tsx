@@ -34,9 +34,8 @@ const TripResultCard = ({noiDi,noiDen,dataProp}) => {
   const {data, setData} = useContext(DataContext);
 
   const handleSelectTrip = () => {
-    console.log(data)
     const ngayKH = data.ngayKhoiHanh.split(' ')[0] + ' ' + dataProp.GioDi;
-    setData({...data,ngayKhoiHanh: ngayKH,idChuyen: dataProp.ID_ChuyenXe})
+    setData({...data,ngayKhoiHanh: ngayKH,idChuyen: dataProp.ID_ChuyenXe,idXe: dataProp.ID_Xe,soXe:dataProp.SoXe})
 
     navigation.navigate("SelectSeat");
   }

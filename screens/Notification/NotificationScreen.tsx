@@ -1,60 +1,59 @@
 import {
   View,
   Text,
-  TextInput,
-  TouchableOpacity,
-  Image,
+  ScrollView,
+  Dimensions,
   StyleSheet,
 } from "react-native";
-import React from "react";
+import React,{useState,useEffect,useContext} from "react";
+import axios from "axios";
 import APP_COLORS from "../../constants/color";
-import Ionicons from "@expo/vector-icons/Ionicons";
-import AntDesign from "@expo/vector-icons/AntDesign";
+import CancelTicket from "../Ticket/components/CancelTicket";
+import tinycolor from "tinycolor2";
+import { DataContext } from "../../App";
+import Toast from "react-native-toast-message";
+import CurrentNoti from "./components/currentNoti";
 const HEADER_HEIGHT = 100;
+const { height: SCREEN_HEIGHT, width: SCREEN_WIDTH } = Dimensions.get("screen");
 
 const NotificationScreen = () => {
+  const [listTB,setListTB]= useState([])
+  const {data,setData} = useContext(DataContext);
+
+
+  useEffect(()=> {
+    try {
+      axios.post('http://192.168.31.45:9999/api/getThongBao',{idUser: data["id_nguoidung"]})
+      .then(response => {
+        if(response && response.data) {
+          setListTB(response.data.data)
+        }
+      })
+      .catch(error => {
+        Toast.show({type:'error',text1: "Không có thông báo"})
+      });
+    } catch (error) {
+      Toast.show({type:'error',text1: "Không có thông báo"})
+    }
+  },[])
+
+  console.log(listTB)
+
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
-        <View style={styles.headerContent}>
-          <Text style={styles.headerTitle}>Thông báo</Text>
-          <TouchableOpacity style={styles.checkButton}>
-            <Ionicons name="checkmark-done-outline" size={24} color="black" />
-          </TouchableOpacity>
-        </View>
-      </View>
-      <View style={styles.content}>
-        <View style={styles.inputContainer}>
-          <View style={styles.input}>
-            <View style={styles.inputIcon}>
-              <AntDesign
-                name="search1"
-                size={24}
-                color={APP_COLORS.lightGray}
-              />
-            </View>
-            <TextInput
-              cursorColor={APP_COLORS.primary}
-              placeholder="Nhập từ khoá"
-              placeholderTextColor={APP_COLORS.lightGray}
-              style={styles.inputText}
-            />
+          <View style={styles.header}>
+            <Text style={styles.headerText}>Thông báo</Text>
           </View>
+              <ScrollView
+                nestedScrollEnabled
+                showsVerticalScrollIndicator={false}
+                style={styles.verticalScroll}
+              >
+                {listTB && listTB.map((tb,index) => (
+                  <CurrentNoti key={index} data={tb}/>
+                ))}
+              </ScrollView>
         </View>
-        <View style={styles.emptyStateContainer}>
-          <Image
-            source={require("../../assets/app_img/warning.png")}
-            style={styles.warningImage}
-          />
-          <View style={styles.emptyStateContent}>
-            <Text style={styles.emptyStateText}>Không có thông báo nào</Text>
-            <TouchableOpacity>
-              <Text style={styles.updateText}>Cập nhật</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      </View>
-    </View>
   );
 };
 
@@ -65,90 +64,80 @@ const styles = StyleSheet.create({
   },
   header: {
     height: HEADER_HEIGHT,
-    flexDirection: "row",
+    justifyContent: "flex-end",
     alignItems: "center",
     backgroundColor: APP_COLORS.primary,
-    justifyContent: "center",
   },
-  headerContent: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    flex: 1,
-  },
-  headerTitle: {
+  headerText: {
     color: APP_COLORS.white,
     fontSize: 18,
+    marginBottom: 32,
     fontWeight: "bold",
   },
-  checkButton: {
-    width: 40,
-    height: 40,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: APP_COLORS.white,
-    borderRadius: 999,
-    position: "absolute",
-    right: 32,
-  },
-  inputText: {
-    flex: 1,
-    width: "100%",
-    fontSize: 16,
-    justifyContent: "center",
-    alignItems: "center",
-    height: 40,
-  },
-  content: {
+  contentWrapper: {
     marginTop: -20,
     zIndex: 2,
     borderTopLeftRadius: 32,
     borderTopRightRadius: 32,
     backgroundColor: APP_COLORS.white,
-    flex: 1,
   },
-
-  emptyStateContainer: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  warningImage: {
-    width: 150,
-    height: 150,
-  },
-  emptyStateContent: {
-    alignItems: "center",
-    gap: 16,
-    marginTop: 32,
-  },
-  emptyStateText: {
-    fontSize: 16,
-    fontWeight: "bold",
-  },
-  updateText: {
-    color: APP_COLORS.primary,
-    fontSize: 16,
-  },
-  inputContainer: {
+  tabContainer: {
+    backgroundColor: tinycolor(APP_COLORS.primary).lighten(35).toString(),
+    height: 50,
+    marginHorizontal: 16,
+    borderRadius: 16,
     marginTop: 16,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    paddingHorizontal: 16,
-  },
-  input: {
-    borderWidth: 1,
-    borderColor: "#ccc",
-    borderRadius: 8,
+    gap: 8,
     paddingHorizontal: 8,
-    flexDirection: "row",
-    alignItems: "center",
-    height: 40,
-    flex: 1,
   },
-  inputIcon: {
-    padding: 4,
+  tabButton: {
+    borderRadius: 12,
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    height: 35,
+  },
+  tabText: {
+    fontSize: 14,
+    color: APP_COLORS.black,
+  },
+  horizontalScroll: {
+    flex: 1,
+    backgroundColor: APP_COLORS.white,
+  },
+  verticalScroll: {
+    width: SCREEN_WIDTH,
+    paddingHorizontal: 16,
+    flex: 1,
+    paddingTop: 16,
+  },
+  ticketContainer: {
+    gap: 16,
+    paddingBottom: 100,
+  },
+  emptyStateContainer: {
+    gap: 16,
+    paddingBottom: 100,
+    alignItems: "center",
+    justifyContent: "center",
+    minHeight: SCREEN_HEIGHT - HEADER_HEIGHT,
+  },
+  emptyStateImage: {
+    width: 75,
+    height: 75,
+  },
+  emptyStateText: {
+    fontSize: 16,
+    textAlign: "center",
+  },
+  activeTabButton: {
+    backgroundColor: APP_COLORS.white,
+  },
+  activeTabText: {
+    color: APP_COLORS.primary,
   },
 });
 

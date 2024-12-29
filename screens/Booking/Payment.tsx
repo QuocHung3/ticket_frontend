@@ -67,8 +67,20 @@ const Payment = () => {
     return () => clearInterval(interval);
   }, []);
 
+  function generateRandomCode(length) {
+    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    let result = '';
+    for (let i = 0; i < length; i++) {
+      const randomIndex = Math.floor(Math.random() * characters.length);
+      result += characters.charAt(randomIndex);
+    }
+    return result;
+  }
+
   const handlePayment = async () => {
     try {
+      const rcode =  generateRandomCode(6);
+
       const dataVe = {
         id_nguoiDung: data["id_nguoidung"],
         id_chuyenXe: data["idChuyen"],
@@ -84,7 +96,11 @@ const Payment = () => {
         diemDon: data["diemDon"],
         diemTra: data["diemTra"],
         sdt: data["sdt"],
-        ghiChu: data["ghiChu"]
+        ghiChu: data["ghiChu"],
+        code: rcode,
+        id_xe: data["idXe"],
+        email: data["email"],
+        soXe: data["soXe"]
       }
 
       await axios.post('http://192.168.31.45:9999/api/addTicket',dataVe)
@@ -105,7 +121,7 @@ const Payment = () => {
         }
       })
       .catch(error => {
-        
+        console.log(error)
           Toast.show({
               type: 'error',
               text1: "Có lỗi!"

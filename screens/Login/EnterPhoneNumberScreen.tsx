@@ -3,6 +3,7 @@ import {
   StyleSheet,
   Text,
   TextInput,
+  ActivityIndicator,
   TouchableOpacity,
 } from "react-native";
 import APP_COLORS from "../../constants/color";
@@ -19,6 +20,8 @@ export default function EnterPhoneNumberScreen() {
   const [phoneNumber, setPhoneNumber] = useState("");
   const [password, setPassword] = useState("");
   const [email, setEmail] = useState("");
+  const [loading, setLoading] = useState(false);
+  
 
   const {data,setData} = useContext(DataContext);
 
@@ -28,11 +31,13 @@ export default function EnterPhoneNumberScreen() {
   };
 
   const handleContinue = async () => {
+    setLoading(true);
     if(!email) {
       Toast.show({
         type: "info",
         text1: "Vui lòng nhập email!"
       })
+      setLoading(false);
       return;
     }
 
@@ -41,22 +46,26 @@ export default function EnterPhoneNumberScreen() {
         type: 'error',
         text1: "Email không đúng hoặc không tồn tại!"
       });
+      setLoading(false);
       return;
     }
-
+    
     try {
       await axios.post('http://192.168.31.45:9999/api/send-verification',{email})
       .then(response => {
         if(response && response.data) {
+          setLoading(false);
           if(!response.data.success) {
             Toast.show({
               type: 'error',
               text1: "Email không đúng hoặc không tồn tại!"
             });
+            setLoading(false);
             return;
           }
 
           setData({...data,email});
+          setLoading(false);
           navigation.navigate("VerifyOTP");
         }
       })
@@ -65,12 +74,14 @@ export default function EnterPhoneNumberScreen() {
           type: 'error',
           text1: "Email không đúng hoặc không tồn tại!"
         });
+        setLoading(false);
       });
     } catch (error) {
       Toast.show({
         type: 'error',
         text1: "Email không đúng hoặc không tồn tại!"
       });
+      setLoading(false);
     }
   };
 
@@ -85,10 +96,12 @@ export default function EnterPhoneNumberScreen() {
     }
 
     try {
+      setLoading(true);
         await axios.post('http://192.168.31.45:9999/api/loginUser',{sdt: phoneNumber,matkhau: password})
         .then(response => {
           if(response && response.data) {
             if(response.status !== 200) {
+              setLoading(false);
               Toast.show({
                 type: 'error',
                 text1: "Tài khoản hoặc mật khẩu không đúng!"
@@ -97,6 +110,7 @@ export default function EnterPhoneNumberScreen() {
             } else {
                 setData({...data,id_nguoidung: response.data.data.ID_NguoiDung})
                 navigation.navigate("RootTab");
+                setLoading(false);
             }
           }
         })
@@ -162,15 +176,27 @@ export default function EnterPhoneNumberScreen() {
         
         {toggle ?
         <View style={styles.buttonContainer}>
-          <TouchableOpacity style={styles.button} onPress={handleLogin}>
+          {loading ?
+              <TouchableOpacity style={styles.button} >
+                <ActivityIndicator />
+              </TouchableOpacity>
+            :
+            <TouchableOpacity style={styles.button} onPress={handleLogin}>
             <Text style={styles.buttonText}>Đăng nhập</Text>
           </TouchableOpacity>
+            }
         </View>
         :
           <View style={styles.buttonContainer}>
+            {loading ?
+              <TouchableOpacity style={styles.button} >
+              <ActivityIndicator />
+            </TouchableOpacity>
+            :
             <TouchableOpacity style={styles.button} onPress={handleContinue}>
               <Text style={styles.buttonText}>Tiếp tục</Text>
             </TouchableOpacity>
+            }
           </View>
         }
         <View style={styles.buttonContainer}>

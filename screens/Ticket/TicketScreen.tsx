@@ -7,11 +7,12 @@ import {
   Image,
   StyleSheet,
 } from "react-native";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import APP_COLORS from "../../constants/color";
 import tinycolor from "tinycolor2";
 import CurrentTicket from "./components/CurrentTicket";
 import CancelTicket from "./components/CancelTicket";
+import axios from "axios";
 
 const { height: SCREEN_HEIGHT, width: SCREEN_WIDTH } = Dimensions.get("screen");
 
@@ -21,8 +22,30 @@ const TAB_ITEMS = ["Hiện tại", "Đã đi", "Đã huỷ"] as const;
 
 const TicketScreen = () => {
   const [selectedTab, setSelectedTab] = React.useState(0);
-
+  const [listVeDat,setListVeDat]= useState([])
+  const [listVeDi,setListVeDi]= useState([])
+  const [listVeHuy,setListVeHuy]= useState([])
   const scrollViewRef = React.useRef<ScrollView>(null);
+
+
+  useEffect(()=> {
+    try {
+
+      axios.get('http://192.168.31.45:9999/api/getAllVe')
+      .then(response => {
+        if(response && response.data) {
+          setListVeDat(response.data.data.filter(ve => ve.TrangThaiVe === "Đã đặt"))
+          setListVeDi(response.data.data.filter(ve => ve.TrangThaiVe === "Đã đi"))
+          setListVeHuy(response.data.data.filter(chuyen => chuyen.TrangThaiVe === "Đã đặt"))
+        }
+      })
+      .catch(error => {
+        console.error(error);
+      });
+    } catch (error) {
+      console.log(error)
+    }
+  },[])
 
   const handleChangeTab = (index: number) => {
     setSelectedTab(index);
@@ -37,14 +60,17 @@ const TicketScreen = () => {
       case 0:
         return (
           <View style={styles.ticketContainer}>
-            <CurrentTicket />
-            <CurrentTicket />
-            <CurrentTicket />
+            {listVeDat && listVeDat.map((value,index) =>(
+              <CurrentTicket key={index} data={value}/>
+            ))}
           </View>
         );
       case 1:
         return (
           <View style={styles.emptyStateContainer}>
+            {listVeDi && listVeDi.map((value,index) =>(
+              <CurrentTicket key={index} data={value}/>
+            ))}
             <Image
               source={require("../../assets/app_img/split.png")}
               style={styles.emptyStateImage}
@@ -57,9 +83,9 @@ const TicketScreen = () => {
       case 2:
         return (
           <View style={styles.ticketContainer}>
-            <CancelTicket />
-            <CancelTicket />
-            <CancelTicket />
+            {listVeHuy && listVeHuy.map((value,index) =>(
+              <CancelTicket key={index} data={value} />
+            ))}
           </View>
         );
       default:

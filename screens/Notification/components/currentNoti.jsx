@@ -2,14 +2,9 @@ import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import React from "react";
 import tinycolor from "tinycolor2";
 import APP_COLORS from "../../../constants/color";
-import { useNavigation } from "@react-navigation/native";
-import { navigation } from "../../../types/stackParamList";
 
-const CancelTicket = ({data}) => {
-  const navigation = useNavigation<navigation<"TicketInfo">>();
+const CurrentNoti = ({data}) => {
 
-  const date = data.GioKhoiHanh.substring(0, 10);
-  const time = data.GioKhoiHanh.substring(12, 16);
   return (
     <TouchableOpacity
       style={styles.container}
@@ -17,38 +12,31 @@ const CancelTicket = ({data}) => {
       <View style={styles.contentContainer}>
         <View style={styles.leftSection}>
           <View>
-            <Text style={styles.label}>Khởi hành</Text>
-            <Text style={styles.timeText}>{time}</Text>
-          </View>
-          <View>
-            <Text style={styles.label}>Chủ nhật</Text>
-            <Text style={styles.normalText}>{date}</Text>
-          </View>
-          <View style={styles.statusContainer}>
-            <Text style={styles.label}>Trạng thái</Text>
-            <Text style={styles.normalText}>{data.TrangThaiThanhToan}</Text>
+            <Text style={styles.label}>Tiêu đề</Text>
+            <Text style={styles.timeText}>{data.TieuDe}</Text>
           </View>
         </View>
 
         <View style={styles.divider} />
 
         <View style={styles.rightSection}>
+            <View style={styles.statusContainer}>
+                <Text style={styles.label}>Nội dung</Text>
+                <Text style={styles.normalText}>{data.NoiDung}</Text>
+            </View>
           <View>
-            <Text style={styles.label}>Biển số xe</Text>
-            <Text style={styles.plateText}>{data.SoXe}</Text>
+            <Text style={styles.label}>Ngày</Text>
+            <Text style={styles.normalText}>{data.Ngay}</Text>
           </View>
           <View>
-            <Text style={styles.label}>Ghế</Text>
-            <Text style={styles.normalText}>{data.ViTriCho}</Text>
+            <Text style={styles.label}>Giờ</Text>
+            <Text style={styles.normalText}>{data.Gio}</Text>
           </View>
-          <View style={styles.statusContainer}>
-            <Text style={styles.label}>Lộ trình</Text>
-            <Text style={styles.normalText}>{data.noiDi} - {data.noiDen}</Text>
-          </View>
+          
         </View>
       </View>
       <View style={styles.cancelContainer}>
-        <Text style={styles.cancelText}>Đã huỷ</Text>
+        <Text style={styles.cancelText}>Xem chi tiết</Text>
       </View>
     </TouchableOpacity>
   );
@@ -59,12 +47,14 @@ const styles = StyleSheet.create({
     backgroundColor: tinycolor(APP_COLORS.primary).lighten(35).toString(),
     borderRadius: 32,
     elevation: 4,
+    marginVertical: 20
   },
   contentContainer: {
     backgroundColor: APP_COLORS.white,
     flexDirection: "row",
     borderRadius: 32,
     padding: 16,
+    
   },
   leftSection: {
     flex: 0.5,
@@ -82,7 +72,7 @@ const styles = StyleSheet.create({
   },
   plateText: {
     fontWeight: "bold",
-    fontSize: 30,
+    fontSize: 20,
   },
   normalText: {
     fontSize: 16,
@@ -104,4 +94,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default CancelTicket;
+export default CurrentNoti;

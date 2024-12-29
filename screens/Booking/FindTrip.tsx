@@ -20,6 +20,7 @@ import TripResultCard from "./components/TripResultCard";
 import { useNavigation } from "@react-navigation/native";
 import { navigation } from "../../types/stackParamList";
 import axios from "axios";
+import Toast from "react-native-toast-message";
 
 const HeaderImg = require("../../assets/app_img/home_img.jpg");
 
@@ -91,6 +92,7 @@ const FindTrip = () => {
   const navigation = useNavigation<navigation<"BookingStack">>();
   const animatedValues = useAnimatedValues(scrollY.current);
   const [dataChuyenXe,setDataChuyenXe]= useState([]);
+  const [veDi,setVeDi]= useState(true);
 
 
   const onScroll = Animated.event(
@@ -123,20 +125,27 @@ const FindTrip = () => {
   
   useEffect(() => {
     try {
-
-      axios.get('http://192.168.31.45:9999/api/AllChuyenXe')
+      console.log(data["noiDi"])
+      axios.post('http://192.168.31.45:9999/api/AllChuyenXe',{diemdi:data["noiDi"]})
       .then(response => {
         if(response && response.data) {
           setDataChuyenXe(response.data.data)
         }
       })
       .catch(error => {
-        console.error(error);
+        Toast.show({
+          type: 'error',
+          text1: "Không có chuyến"
+        });
       });
     } catch (error) {
-      console.log(error)
+      Toast.show({
+        type: 'error',
+        text1: "Không có chuyến"
+      });
     }
   },[])
+
 
   return (
     <View style={styles.container}>
@@ -188,8 +197,9 @@ const FindTrip = () => {
               <Entypo name="chevron-left" size={24} color={APP_COLORS.white} />
             </TouchableOpacity>
             <View style={styles.dateTextContainer}>
+              <Text style={styles.dateTextHeader}>{veDi ? "VÉ ĐI" : "VÉ VỀ"}</Text>
               <Text style={styles.dateText}>Khởi hành</Text>
-              <Text style={styles.dateText}>Thứ 2, 18/11/2024</Text>
+              <Text style={styles.dateText}>{data["ngayKhoiHanh"]}</Text>
             </View>
             <TouchableOpacity>
               <Entypo name="chevron-right" size={24} color={APP_COLORS.white} />
@@ -368,6 +378,10 @@ const styles = StyleSheet.create({
   },
   dateText: {
     color: APP_COLORS.white,
+  },
+  dateTextHeader: {
+    color: APP_COLORS.white,
+    fontSize:30
   },
   contentContainer: {
     backgroundColor: APP_COLORS.aliceBlue,

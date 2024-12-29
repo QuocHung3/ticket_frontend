@@ -45,7 +45,7 @@ const BookingInfomation = () => {
       .catch(error => {
           Toast.show({
               type: 'error',
-              text1: "Tài khoản hoặc mật khẩu không đúng!"
+              text1: "Lỗi!"
             });
             return;
       });
@@ -54,8 +54,10 @@ const BookingInfomation = () => {
     }  
   },[])
 
+  console.log(dataUser)
+
   const handleContinue =  () => {
-    setData({...data,sdt: phone,ghiChu: note})
+    setData({...data,sdt: phone,ghiChu: note,email:dataUser["Email"]})
     navigation.navigate("PaymentMethod");
   }
 

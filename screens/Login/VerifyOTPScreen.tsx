@@ -4,7 +4,7 @@ import {
   Text,
   TextInput,
   TouchableOpacity,
-  Keyboard,
+  ActivityIndicator,
 } from "react-native";
 import APP_COLORS from "../../constants/color";
 import { useEffect, useRef, useState ,useContext} from "react";
@@ -24,6 +24,7 @@ export default function VerifyOTPScreen() {
   const [name,setName] = useState("");
   const [password,setPassword] = useState("");
   const [passwordTest,setPasswordTest] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const {data,setData} = useContext(DataContext);
 
@@ -33,11 +34,13 @@ export default function VerifyOTPScreen() {
   };
   
   const handleVerify = async () => {
+    setLoading(true);
     if(!authText) {
       Toast.show({
         type: "info",
         text1: "Vui lòng nhập mã xác nhận!"
       })
+      setLoading(false);
       return;
     }
 
@@ -46,6 +49,7 @@ export default function VerifyOTPScreen() {
         type: "error",
         text1: "Có lỗi, vui lòng thử lại!"
       })
+      setLoading(false);
       return;
     }
     try {
@@ -57,27 +61,33 @@ export default function VerifyOTPScreen() {
               type: 'error',
               text1: "Mã không đúng!"
             });
+            setLoading(false);
             return;
           } else {
             console.log("Xác thực mã thành công");
             setConfirm(true);
+            setLoading(false);
           }
         }
       })
       .catch(error => {
         console.error(error);
+        setLoading(false);
       });
     } catch (error) {
       console.log(error)
+      setLoading(false);
     }
   }
 
   const handleAuthSuccess = async () => {
+    setLoading(true)
     if (!validatePhoneNumber(phone)) {
       Toast.show({
         type: 'error',
         text1: "Số điện thoại không hợp lệ!"
       });
+      setLoading(false);
       return;
     }
 
@@ -86,6 +96,7 @@ export default function VerifyOTPScreen() {
         type: 'error',
         text1: "Nhập tất cả thông tin để đăng kí!"
       });
+      setLoading(false);
       return;
     }
 
@@ -94,6 +105,7 @@ export default function VerifyOTPScreen() {
         type: 'error',
         text1: "Mật khẩu không giống nhau!"
       });
+      setLoading(false);
       return;
     }
 
@@ -107,22 +119,25 @@ export default function VerifyOTPScreen() {
               type: 'error',
               text1: "Có lỗi, thử lại!"
             });
+            setLoading(false);
             return;
           } else {
             Toast.show({
               type: 'success',
               text1: "Tạo tài khoản thành công!"
             });
-
+            setLoading(false);
             navigation.navigate("EnterPhoneNumber");
           }
         }
       })
       .catch(error => {
         console.error(error);
+        setLoading(false);
       });
     } catch (error) {
       console.log(error)
+      setLoading(false);
     }
   }
 
@@ -177,9 +192,15 @@ export default function VerifyOTPScreen() {
         {!confirm ?
         <View>
           <View style={styles.buttonContainer}>
-            <TouchableOpacity style={styles.button} onPress={handleVerify}>
-              <Text style={styles.buttonText}>Xác thực</Text>
-            </TouchableOpacity>
+            {loading ? 
+              <TouchableOpacity style={styles.button}>
+                <View><ActivityIndicator /></View>
+              </TouchableOpacity>
+            :
+              <TouchableOpacity style={styles.button} onPress={handleVerify}>
+                <Text style={styles.buttonText}>Xác thực</Text>
+              </TouchableOpacity>
+            }
           </View>
           <View style={styles.buttonContainer}>
             <TouchableOpacity style={styles.termsAndConditionsContainer}>
@@ -189,9 +210,15 @@ export default function VerifyOTPScreen() {
         </View>
         : 
         <View style={styles.buttonContainer}>
-          <TouchableOpacity style={styles.button} onPress={handleAuthSuccess}>
-            <Text style={styles.buttonText}>Xác Nhận</Text>
-          </TouchableOpacity>
+          {loading ? 
+              <TouchableOpacity style={styles.button}>
+                <View><ActivityIndicator /></View>
+              </TouchableOpacity>
+            :
+              <TouchableOpacity style={styles.button} onPress={handleAuthSuccess}>
+              <Text style={styles.buttonText}>Xác Nhận</Text>
+            </TouchableOpacity>
+            }
         </View>
         }
       </View>

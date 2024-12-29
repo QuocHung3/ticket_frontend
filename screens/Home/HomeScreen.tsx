@@ -4,9 +4,11 @@ import {
   View,
   Image,
   Dimensions,
+  Alert,
   ScrollView,
   Animated,
   TouchableOpacity,
+  BackHandler,
 } from "react-native";
 import axios from 'axios';
 import { SelectList } from 'react-native-dropdown-select-list';
@@ -33,16 +35,19 @@ const HomeScreen = () => {
     return ngay.toLocaleDateString();
   });
 
-  const [ngayVe, setNgayVe] = useState(()=> {
-    const ngay = new Date();
-    ngay.setDate(ngay.getDate() + 1)
-    return ngay.toLocaleDateString();
-  });
+  const [ngayVe, setNgayVe] = useState("");
 
+  useEffect(() => {
+    if(!ngayKhoiHanh) {
+      const ngay = new Date();
+      setNgayKhoiHanh(ngay.toLocaleDateString());
+    }
+  })
   
+
   useEffect(() => {
     try {
-      setData({...data,ngayKhoiHanh});
+      setData({...data,ngayKhoiHanh,ngayVe: ngayVe});
 
       axios.get('http://192.168.31.45:9999/api/AllTinhThanh')
       .then(response => {
@@ -104,6 +109,27 @@ const HomeScreen = () => {
       setNgayVe(data["ngayVe"]);
     }
   },[data])
+
+  useEffect(() => {
+    const backAction = () => {
+      Alert.alert('Đăng xuất!', 'Bạn có chắc chắn?', [
+        {
+          text: 'Cancel',
+          onPress: () => null,
+          style: 'cancel',
+        },
+        {text: 'YES', onPress: () => navigation.navigate("LoginStack")},
+      ]);
+      return true;
+    };
+
+    const backHandler = BackHandler.addEventListener(
+      'hardwareBackPress',
+      backAction,
+    );
+
+    return () => backHandler.remove();
+  }, []);
   
   return (
     <View style={styles.container}>
@@ -124,7 +150,7 @@ const HomeScreen = () => {
       >
         <View style={styles.wellcomeText}>
           <Text style={{ fontSize: 20, fontWeight: "bold" }}>
-            Xin chào Admin
+            Chào bạn
           </Text>
           <Text style={{ fontSize: 16, marginTop: 5 }}>
             Bạn đã sãn sàng cho chuyến hành trình của riêng mình?

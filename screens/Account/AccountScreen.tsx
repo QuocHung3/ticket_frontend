@@ -5,7 +5,8 @@ import {
   ScrollView,
   StyleSheet,
 } from "react-native";
-import React from "react";
+import React,{useContext, useEffect} from "react";
+import { DataContext } from "../../App";
 import APP_COLORS from "../../constants/color";
 import { useNavigation } from "@react-navigation/native";
 import { navigation } from "../../types/stackParamList";
@@ -19,6 +20,7 @@ import tinycolor from "tinycolor2";
 import ContactBottomSheet from "./components/ContactBottomSheet";
 import { BottomSheetModal } from "@gorhom/bottom-sheet";
 import Modal from "../../components/common/Modal";
+import axios from "axios";
 
 const HEADER_HEIGHT = 180;
 
@@ -59,8 +61,10 @@ const MenuItem = ({ icon, title, borderRadius, onPress }: MenuItemProps) => (
 
 const AccountScreen = () => {
   const navigation = useNavigation<navigation<"AccountStack">>();
-
+  const {data,setData} = useContext(DataContext);
   const [isLogin, setIsLogin] = React.useState(true);
+  const [user, setUser] = React.useState(true);
+  
 
   const [isLogoutModalVisible, setIsLogoutModalVisible] = React.useState(false);
 
@@ -76,6 +80,22 @@ const AccountScreen = () => {
     setIsLogoutModalVisible(false);
     setIsLogin(false);
   };
+
+  useEffect(() => {
+    try {
+      axios.post('http://192.168.31.45:9999/api/getUser',{idUser:data["id_nguoidung"]})
+      .then(response => {
+        if(response && response.data) {
+          setUser(response.data.data[0]);
+        }
+      })
+      .catch(error => {
+        console.error(error);
+      });
+    } catch (error) {
+      console.log(error)
+    }
+  },[])
 
   const menuItems = [
     {
@@ -243,7 +263,7 @@ const AccountScreen = () => {
             <TouchableOpacity
               onPress={() =>
                 navigation.navigate("AccountStack", {
-                  screen: "EditProfile",
+                  screen: "EditProfile"
                 })
               }
             >
@@ -254,7 +274,7 @@ const AccountScreen = () => {
                   color: APP_COLORS.white,
                 }}
               >
-                Admin <Feather name="edit" size={20} color={APP_COLORS.white} />
+                {user["Ten"]} <Feather name="edit" size={20} color={APP_COLORS.white} />
               </Text>
 
               <Text
@@ -263,7 +283,7 @@ const AccountScreen = () => {
                   color: APP_COLORS.white,
                 }}
               >
-                0909090909
+                {user["SDT"]}
               </Text>
             </TouchableOpacity>
           )}

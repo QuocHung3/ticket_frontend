@@ -31,7 +31,7 @@ const SelectSeats = () => {
 
   useEffect(() => {
     try {
-      axios.get('http://192.168.31.45:9999/api/AllVTCho')
+      axios.post('http://192.168.31.45:9999/api/AllVTCho',{idChuyen:data["idChuyen"]})
       .then(response => {
         if(response && response.data) {
           response.data.data.forEach(seat => {

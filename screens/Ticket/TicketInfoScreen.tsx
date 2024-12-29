@@ -1,9 +1,54 @@
-import { View, Text, ScrollView, StyleSheet } from "react-native";
+import { View, Text, ScrollView, StyleSheet, TouchableOpacity, Button } from "react-native";
 import React from "react";
 import Header from "../../components/common/Header";
 import APP_COLORS from "../../constants/color";
+import axios from "axios";
+import Toast from "react-native-toast-message";
+import { useNavigation } from "@react-navigation/native";
+import { navigation } from "../../../ticket_frontend/types/stackParamList";
 
-const TicketInfoScreen = () => {
+const TicketInfoScreen = ({route}) => {
+  const data = route.params;
+  const navigation = useNavigation<navigation<"RootTab">>();
+
+  const handleCancel = (val) => {
+    try {
+      let cho = data.ViTriCho;
+      if(cho.length > 5) cho = data.ViTriCho.split(" ");
+      else cho = [data.ViTriCho]
+ 
+      axios.post('http://192.168.31.45:9999/api/cancelTicket',
+      {trangThaiVe: "Đã huỷ",ID_Ve:data.ID_Ve,viTriCho:cho,id_chuyenXe:data.ID_ChuyenXe})
+      .then(response => {
+        if(response && response.data) {
+          if(response.status !== 200) {
+            Toast.show({
+              type: 'error',
+              text1: "Đã sảy ra lỗi!"
+            });
+            return;
+          } else {
+            Toast.show({
+              type: 'success',
+              text1: "Huỷ vé thành công!"
+            });
+            
+            navigation.navigate("RootTab");
+          }
+        }
+      })
+      .catch(error => {
+          Toast.show({
+              type: 'error',
+              text1: "Tài khoản hoặc mật khẩu không đúng!"
+            });
+            return;
+      });
+    } catch (error) {
+      console.log(error);
+    }  
+  }
+
   return (
     <View style={styles.container}>
       <Header title="Thông tin vé" />
@@ -18,19 +63,19 @@ const TicketInfoScreen = () => {
           <Text style={styles.sectionTitle}>Thông tin chuyến</Text>
           <View style={styles.row}>
             <Text style={styles.label}>Tuyến</Text>
-            <Text style={styles.value}>Đồng Nai - Sài Gòn - Đắk Lắk (SH)</Text>
+            <Text style={styles.value}>{data.noiDi} - {data.noiDen}</Text>
           </View>
           <View style={styles.row}>
             <Text style={styles.label}>Chuyến</Text>
-            <Text style={styles.value}>06:15PM 27/12/2024</Text>
+            <Text style={styles.value}>{data.GioKhoiHanh}</Text>
           </View>
           <View style={styles.row}>
             <Text style={styles.label}>Số vé</Text>
-            <Text style={styles.value}>1</Text>
+            <Text style={styles.value}>{data.SoGhe}</Text>
           </View>
           <View style={styles.row}>
             <Text style={styles.label}>Tổng tiền</Text>
-            <Text style={styles.value}>350.000 đ</Text>
+            <Text style={styles.value}>{data.SoTien} đ</Text>
           </View>
         </View>
 
@@ -38,11 +83,10 @@ const TicketInfoScreen = () => {
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Điểm đón</Text>
           <View style={styles.locationInfo}>
-            <Text style={styles.locationText}>KDL Suối Tiên</Text>
-            <Text style={styles.locationAddress}>120 Xa lộ Hà Nội</Text>
+            <Text style={styles.locationText}>{data.DiemDon}</Text>
             <View style={styles.row}>
               <Text style={styles.label}>Đón lúc</Text>
-              <Text style={styles.value}>18:15 27/12/2024</Text>
+              <Text style={styles.value}>{data.GioKhoiHanh}</Text>
             </View>
           </View>
         </View>
@@ -51,10 +95,7 @@ const TicketInfoScreen = () => {
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Điểm trả</Text>
           <View style={styles.locationInfo}>
-            <Text style={styles.locationText}>Ngã 3 Buôn Cốp</Text>
-            <Text style={styles.locationAddress}>
-              QL14, Hòa Phú, Tp. Buôn Ma Thuột, Đắk Lắk, Việt Nam
-            </Text>
+            <Text style={styles.locationText}>{data.DiemTra}</Text>
           </View>
         </View>
 
@@ -67,7 +108,7 @@ const TicketInfoScreen = () => {
           </View>
           <View style={styles.row}>
             <Text style={styles.label}>Số điện thoại</Text>
-            <Text style={styles.value}>0971343543</Text>
+            <Text style={styles.value}>{data.SDT}</Text>
           </View>
           <View style={styles.row}>
             <Text style={styles.label}>Email</Text>
@@ -84,12 +125,15 @@ const TicketInfoScreen = () => {
           </View>
           <View style={styles.row}>
             <Text style={styles.label}>Tổng tiền</Text>
-            <Text style={styles.value}>350.000 đ</Text>
+            <Text style={styles.value}>{data.SoTien} đ</Text>
           </View>
           <View style={styles.row}>
             <Text style={styles.label}>Trạng thái</Text>
-            <Text style={[styles.value, styles.unpaid]}>Chưa thanh toán</Text>
+            <Text style={[styles.value, styles.unpaid]}>{data.TrangThaiThanhToan}</Text>
           </View>
+          <TouchableOpacity onPress={handleCancel}>
+            <View style={styles.button}><Text style={styles.buttonContent}>Huỷ Vé</Text></View>
+          </TouchableOpacity>
         </View>
       </ScrollView>
     </View>
@@ -100,6 +144,20 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: APP_COLORS.white,
+  },
+  button: {
+    backgroundColor: APP_COLORS.blue,
+    height: 50,
+    borderRadius: 16,
+    justifyContent: "center",
+    alignItems: "center",
+    
+  },
+  buttonContent: {
+    flexDirection: "row",
+    alignItems: "center",
+    textAlign:'center',
+    color: APP_COLORS.white
   },
   content: {
     flex: 1,

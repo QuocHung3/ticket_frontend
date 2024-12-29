@@ -6,41 +6,45 @@ import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { useNavigation } from "@react-navigation/native";
 import { navigation } from "../../../types/stackParamList";
 
-const CancelTicket = () => {
+const CancelTicket = ({data}) => {
+  
   const navigation = useNavigation<navigation<"TicketInfo">>();
+
+  const date = data.GioKhoiHanh.substring(0, 10);
+  const time = data.GioKhoiHanh.substring(12, 16);
   return (
     <TouchableOpacity
       style={styles.container}
-      onPress={() => navigation.navigate("TicketInfo")}
+      onPress={() => navigation.navigate("TicketInfo",data)}
     >
       <View style={styles.upperContainer}>
         <View style={styles.leftSection}>
           <View>
             <Text style={styles.label}>Khởi hành</Text>
-            <Text style={styles.timeText}>20:00</Text>
+            <Text style={styles.timeText}>{time}</Text>
           </View>
           <View>
-            <Text style={styles.label}>Chủ nhật</Text>
-            <Text style={styles.normalText}>17/11/2024</Text>
+            <Text style={styles.label}>Ngày</Text>
+            <Text style={styles.normalText}>{date}</Text>
           </View>
           <View style={styles.statusContainer}>
             <Text style={styles.label}>Trạng thái</Text>
-            <Text style={styles.normalText}>Chưa thanh toán</Text>
+            <Text style={styles.normalText}>{data.TrangThaiThanhToan}</Text>
           </View>
         </View>
         <View style={styles.divider} />
         <View style={styles.rightSection}>
           <View>
             <Text style={styles.label}>Biển số xe</Text>
-            <Text style={styles.timeText}>51G-741.94</Text>
+            <Text style={styles.timeText}>{data.SoXe}</Text>
           </View>
           <View>
             <Text style={styles.label}>Ghế</Text>
-            <Text style={styles.normalText}>C1T</Text>
+            <Text style={styles.normalText}>{data.ViTriCho}</Text>
           </View>
           <View style={styles.statusContainer}>
             <Text style={styles.label}>Lộ trình</Text>
-            <Text style={styles.normalText}>Buôn Ma Thuột - Hồ Chí Minh</Text>
+            <Text style={styles.normalText}>{data.noiDi} - {data.noiDen}</Text>
           </View>
         </View>
       </View>
