@@ -50,7 +50,9 @@ LocaleConfig.locales["vi"] = {
 };
 LocaleConfig.defaultLocale = "vi";
 const { width: SCREEN_WIDTH } = Dimensions.get("screen");
-const ChooseDate = () => {
+
+
+const ChooseDate = ({ route }) => {
   const navigation = useNavigation<navigation<"ChooseDate">>();
   const {
     params: { type },
@@ -81,7 +83,7 @@ const ChooseDate = () => {
         <CalendarList
           style={styles.calendar}
           disableAllTouchEventsForDisabledDays={true}
-          minDate={dayjs().format("YYYY-MM-DD")}
+          minDate={route.params.type === 'roundtrip' ? data['ngayKhoiHanh'] : dayjs().format("YYYY-MM-DD")}
           enableSwipeMonths={true}
           theme={{
             calendarBackground: APP_COLORS.white,
@@ -96,7 +98,10 @@ const ChooseDate = () => {
             textDisabledColor: APP_COLORS.lightGray,
           }}
           onDayPress={(day) => {
-            setData({...data,ngayKhoiHanh: day.dateString});
+            route.params.type === 'roundtrip' ?
+              setData({...data,ngayVe: day.dateString})
+            :
+              setData({...data,ngayKhoiHanh: day.dateString})
             console.log(data)
             navigation.goBack();
           }}

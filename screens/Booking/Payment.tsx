@@ -6,6 +6,7 @@ import {
   Image,
   TouchableOpacity,
   TextInput,
+  ActivityIndicator,
   Animated,
   ViewStyle,
 } from "react-native";
@@ -24,8 +25,7 @@ import Toast from "react-native-toast-message";
 const bankInfo = {
   bank: "VIETINBANK",
   accountHolder: "TUAN TRUNG",
-  accountNumber: "111V90677380",
-  amount: "300.000đ",
+  accountNumber: "111V90677380"
 };
 
 
@@ -33,6 +33,7 @@ const Payment = () => {
   const navigation = useNavigation<navigation<"BookingStack">>();
   const animationHeight = useRef(new Animated.Value(0)).current;
   const [isOpen, setIsOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
   const {data,setData} = useContext(DataContext);
 
   useEffect(() => {
@@ -78,41 +79,53 @@ const Payment = () => {
   }
 
   const handlePayment = async () => {
+    setLoading(true);
     try {
       const rcode =  generateRandomCode(6);
 
       const dataVe = {
         id_nguoiDung: data["id_nguoidung"],
         id_chuyenXe: data["idChuyen"],
+        id_chuyenXeV: data["idChuyenV"],
         trangThaiVe: "Đã đặt",
         soGhe: data["viTriCho"],
+        soGheV: data["viTriChoV"],
         gioKH: data["ngayKhoiHanh"],
+        gioKHV: data["ngayVe"],
         viTriCho: data["viTriCho"],
+        viTriChoV: data["viTriChoV"],
         hinhThuc: "Chuyển khoản", 
         soTien: data["giaVe"],
+        soTienV: data["giaVeV"],
         trangThaiThanhToan: "Đã thanh toán",
         noiDi: data["noiDi"],
         noiDen: data["noiDen"],
         diemDon: data["diemDon"],
+        diemDonV: data["diemDonV"],
         diemTra: data["diemTra"],
+        diemTraV: data["diemTraV"],
         sdt: data["sdt"],
         ghiChu: data["ghiChu"],
         code: rcode,
         id_xe: data["idXe"],
+        id_xeV: data["idXeV"],
         email: data["email"],
-        soXe: data["soXe"]
+        soXe: data["soXe"],
+        soXeV: data["soXeV"]
       }
 
       await axios.post('http://192.168.31.45:9999/api/addTicket',dataVe)
       .then(response => {
         if(response && response.data) {
           if(response.status !== 200) {
+            setLoading(false);
             Toast.show({
               type: 'error',
               text1: "Có lỗi sảy ra, thử lại!"
             });
             return;
           } else {
+            setLoading(false);
             Toast.show({
               type: 'success',
               text1: "Đặt vé thành công!"
@@ -121,15 +134,17 @@ const Payment = () => {
         }
       })
       .catch(error => {
-        console.log(error)
-          Toast.show({
-              type: 'error',
-              text1: "Có lỗi!"
-            });
-            return;
+        console.log(error);
+        setLoading(false);
+        Toast.show({
+            type: 'error',
+            text1: "Có lỗi!"
+          });
+          return;
       });
     } catch (error) {
-      console.log(error)
+      console.log(error);
+      setLoading(false);
       Toast.show({
           type: 'error',
           text1: "Có lỗi!"
@@ -261,12 +276,20 @@ const Payment = () => {
       </ScrollView>
 
       <View style={styles.bottomButtons}>
+        {loading ? 
+        <TouchableOpacity
+          style={styles.payedButton}
+        >
+          <Text style={styles.payedButtonText}>Tôi đã chuyển khoản</Text>
+        </TouchableOpacity>
+        :
         <TouchableOpacity
           style={styles.payedButton}
           onPress={handlePayment}
         >
           <Text style={styles.payedButtonText}>Tôi đã chuyển khoản</Text>
         </TouchableOpacity>
+        }
         <TouchableOpacity style={styles.paymentLatterButton} onPress={() => {}}>
           <Text style={styles.paymentLatterButtonText}>Chuyển khoản sau</Text>
         </TouchableOpacity>

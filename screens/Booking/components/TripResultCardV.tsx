@@ -29,15 +29,15 @@ const TicketNotch = ({ style }: { style: any }) => (
   <View style={[styles.ticketNotch, style]} />
 );
 
-const TripResultCard = ({noiDi,noiDen,dataProp}) => {
+const TripResultCardV = ({noiDi,noiDen,dataProp}) => {
   const navigation = useNavigation<navigation<"BookingStack">>();
   const {data, setData} = useContext(DataContext);
 
   const handleSelectTrip = () => {
-    const ngayKH = data.ngayKhoiHanh.split(' ')[0] + ' ' + dataProp.GioDi;
-    setData({...data,ngayKhoiHanh: ngayKH,idChuyen: dataProp.ID_ChuyenXe,idXe: dataProp.ID_Xe,soXe:dataProp.SoXe})
+    const ngayKH = data["ngayVe"].split(' ')[0] + ' ' + dataProp.GioDi;
+    setData({...data,ngayVe: ngayKH,idChuyenV: dataProp.ID_ChuyenXe,idXeV: dataProp.ID_Xe,soXeV:dataProp.SoXe})
 
-    navigation.navigate("SelectSeat");
+    navigation.navigate("SelectSeatV");
   }
 
   return (
@@ -214,4 +214,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default TripResultCard;
+export default TripResultCardV;

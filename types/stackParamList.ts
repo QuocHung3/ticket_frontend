@@ -47,7 +47,10 @@ export type RootStackParamList = {
   BookingInfomation: undefined;
   PaymentMethod: undefined;
   Payment: undefined;
-  VerifyPayment: undefined;
+  FindTripV: { someParam: string };
+  SelectSeatV:{ someParam: string };
+  ChoosePickUpDropOffV:undefined
+  VerifyPayment: { transactionId: string };
 };
 
 export type RootStackProps<T extends keyof RootStackParamList> = {

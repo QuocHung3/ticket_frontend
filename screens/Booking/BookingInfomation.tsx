@@ -54,8 +54,7 @@ const BookingInfomation = () => {
     }  
   },[])
 
-  console.log(dataUser)
-
+  console.log(data)
   const handleContinue =  () => {
     setData({...data,sdt: phone,ghiChu: note,email:dataUser["Email"]})
     navigation.navigate("PaymentMethod");

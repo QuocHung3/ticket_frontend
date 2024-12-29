@@ -10,13 +10,18 @@ import BookingInfomation from "../screens/Booking/BookingInfomation";
 import Payment from "../screens/Booking/Payment";
 import PaymentMethod from "../screens/Booking/PaymentMethod";
 import VerifyPayment from "../screens/Booking/VerifyPayment";
+import FindTripV from "../screens/Booking/FindTripV";
+import ChoosePickUpDropOffV from "../screens/Booking/ChoosePickUpDropOffV";
+import SelectSeatsV from "../screens/Booking/SelectSeatsV";
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 const BookingStack = () => {
   return (
     <Stack.Navigator screenOptions={{ headerShown: false }}>
       <Stack.Screen name="FindTrip" component={FindTrip} />
+      <Stack.Screen name="FindTripV" component={FindTripV} />
       <Stack.Screen name="SelectSeat" component={SelectSeats} />
+      <Stack.Screen name="SelectSeatV" component={SelectSeatsV} />
       <Stack.Screen name="Filter" component={FilterScreen} />
       <Stack.Screen
         name="PickUpDropOffFilter"
@@ -25,6 +30,10 @@ const BookingStack = () => {
       <Stack.Screen
         name="ChoosePickUpDropOff"
         component={ChoosePickUpDropOff}
+      />
+      <Stack.Screen
+        name="ChoosePickUpDropOffV"
+        component={ChoosePickUpDropOffV}
       />
       <Stack.Screen name="BookingInfomation" component={BookingInfomation} />
       <Stack.Screen name="PaymentMethod" component={PaymentMethod} />

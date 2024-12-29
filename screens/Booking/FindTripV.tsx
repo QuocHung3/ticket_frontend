@@ -21,6 +21,7 @@ import { useNavigation } from "@react-navigation/native";
 import { navigation } from "../../types/stackParamList";
 import axios from "axios";
 import Toast from "react-native-toast-message";
+import TripResultCardV from "./components/TripResultCardV";
 
 const HeaderImg = require("../../assets/app_img/home_img.jpg");
 
@@ -34,13 +35,11 @@ const SCROLL_THRESHOLD = {
   TITLE: 300,
   OPACITY: 100,
 };
-
 const INITIAL_HOURS = [
   { id: 1, time: 18, active: true },
   { id: 2, time: 19, active: false },
   { id: 3, time: 20, active: false },
 ];
-
 const Header = ({ scrollY, navigation, titleOpacity, titleTranslateY ,noiDi,noiDen}) => (
   <View>
     <Animated.View
@@ -84,7 +83,7 @@ const Header = ({ scrollY, navigation, titleOpacity, titleTranslateY ,noiDi,noiD
   </View>
 );
 
-const FindTrip = () => {
+const FindTripV = () => {
   const scrollViewRef = React.useRef<ScrollView>(null);
   const scrollY = React.useRef(new Animated.Value(0));
   const {data,setData} = useContext(DataContext);
@@ -92,7 +91,6 @@ const FindTrip = () => {
   const navigation = useNavigation<navigation<"BookingStack">>();
   const animatedValues = useAnimatedValues(scrollY.current);
   const [dataChuyenXe,setDataChuyenXe]= useState([]);
-  const [veDi,setVeDi]= useState(true);
 
 
   const onScroll = Animated.event(
@@ -119,14 +117,13 @@ const FindTrip = () => {
   let noiDi ="";
   let noiDen="";
   if(data) {
-    noiDi = data["noiDi"];
-    noiDen = data["noiDen"]
+    noiDi = data["noiDen"];
+    noiDen = data["noiDi"]
   }
   
   useEffect(() => {
     try {
-      console.log(data["noiDi"])
-      axios.post('http://192.168.31.45:9999/api/AllChuyenXe',{diemdi:data["noiDi"]})
+      axios.post('http://192.168.31.45:9999/api/AllChuyenXe',{diemdi:data["noiDen"]})
       .then(response => {
         if(response && response.data) {
           setDataChuyenXe(response.data.data)
@@ -199,9 +196,9 @@ const FindTrip = () => {
               <Entypo name="chevron-left" size={24} color={APP_COLORS.white} />
             </TouchableOpacity>
             <View style={styles.dateTextContainer}>
-              <Text style={styles.dateTextHeader}>{"VÉ ĐI"}</Text>
+              <Text style={styles.dateTextHeader}>{"VÉ VỀ"}</Text>
               <Text style={styles.dateText}>Khởi hành</Text>
-              <Text style={styles.dateText}>{data["ngayKhoiHanh"].substring(0,10)}</Text>
+              <Text style={styles.dateText}>{data["ngayVe"].substring(0,10)}</Text>
             </View>
             <TouchableOpacity>
               <Entypo name="chevron-right" size={24} color={APP_COLORS.white} />
@@ -243,7 +240,7 @@ const FindTrip = () => {
                 <View style={styles.tripGrid}>
                   <>{
                     dataChuyenXe && dataChuyenXe.map((value,index) => (
-                      <TripResultCard key={index}
+                      <TripResultCardV key={index}
                         noiDi={noiDi}
                         noiDen={noiDen}
                         dataProp ={value}
@@ -426,4 +423,4 @@ const getHourButtonStyle = (active: boolean): ViewStyle => ({
   backgroundColor: active ? APP_COLORS.white : "transparent",
 });
 
-export default FindTrip;
+export default FindTripV;

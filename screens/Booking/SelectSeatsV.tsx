@@ -31,7 +31,7 @@ const SelectSeats = () => {
 
   useEffect(() => {
     try {
-      axios.post('http://192.168.31.45:9999/api/AllVTCho',{idChuyen:data["idChuyen"]})
+      axios.post('http://192.168.31.45:9999/api/AllVTCho',{idChuyen:data["idChuyenV"]})
       .then(response => {
         if(response && response.data) {
           response.data.data.forEach(seat => {
@@ -65,14 +65,14 @@ const SelectSeats = () => {
   };
 
   const handleConfirmSeats = () => {
-    setData({...data,viTriCho: selectedSeats,giaVe: selectedSeats.length * 350000})
+    setData({...data,viTriChoV: selectedSeats,giaVeV: selectedSeats.length * 350000})
     console.log(data)
-    navigation.navigate("ChoosePickUpDropOff");
+    navigation.navigate("ChoosePickUpDropOffV");
   }
 
   return (
     <View style={styles.container}>
-      <Header title="Chọn Ghế Chuyến Đi" />
+      <Header title="Chọn Ghế Chuyến Về" />
       <ScrollView showsVerticalScrollIndicator={false}>
         <View>
           <BookingStep currentStep={1} />

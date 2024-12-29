@@ -49,13 +49,13 @@ const ChoosePickUpDropOff = () => {
       Toast.show({type:'error', text1: "Nhập đủ điểm đón, trả"})
       return;
     }
-    setData({...data,diemDon,diemTra});
+    setData({...data,diemDonV: diemDon,diemTraV:diemTra});
 
-    navigation.navigate(data['ngayVe'] ? "FindTripV" : "BookingInfomation")
+    navigation.navigate("BookingInfomation")
   };
   return (
     <View style={styles.container}>
-      <Header title="Chọn điểm đón / trả chuyến đi" />
+      <Header title="Chọn điểm đón / trả chuyến về" />
       <ScrollView showsVerticalScrollIndicator={false}>
         <View style={styles.content}>
           <BookingStep currentStep={2} />

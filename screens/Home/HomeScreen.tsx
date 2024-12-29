@@ -21,6 +21,7 @@ import NewCard from "./components/NewCard";
 import { useNavigation } from "@react-navigation/native";
 import { navigation } from "../../types/stackParamList";
 import tinycolor from "tinycolor2";
+import Toast from "react-native-toast-message";
 const HomeImg = require("../../assets/app_img/home_img.jpg");
 
 const { width: SCREEN_WIDTH } = Dimensions.get("screen");
@@ -34,6 +35,7 @@ const HomeScreen = () => {
     const ngay = new Date();
     return ngay.toLocaleDateString();
   });
+  const [isOneWay, setIsOneWay] = React.useState(true);
 
   const [ngayVe, setNgayVe] = useState("");
 
@@ -43,7 +45,10 @@ const HomeScreen = () => {
       setNgayKhoiHanh(ngay.toLocaleDateString());
     }
   })
-  
+
+  useEffect(() => {
+    setNgayVe("");
+  },[isOneWay])
 
   useEffect(() => {
     try {
@@ -69,7 +74,7 @@ const HomeScreen = () => {
 
   const scrollViewRef = React.createRef<ScrollView>();
 
-  const [isOneWay, setIsOneWay] = React.useState(true);
+ 
 
   const scrollY = React.useRef(new Animated.Value(0));
 
@@ -94,11 +99,16 @@ const HomeScreen = () => {
   });
 
   const handleFindTrip = () => {
+    if(!selectedNoiDi || !selectedNoiDen) {
+      Toast.show({type:"error",text1: "Nhập thông tin tìm kiếm"})
+      
+      return;
+    }
     setData({...data,noiDi: selectedNoiDi,noiDen: selectedNoiDen})
 
     navigation.navigate("BookingStack")
-    console.log(data);
   }
+  console.log(ngayVe)
 
   useEffect(() => {
     if(data && data["ngayKhoiHanh"]){
@@ -109,27 +119,6 @@ const HomeScreen = () => {
       setNgayVe(data["ngayVe"]);
     }
   },[data])
-
-  useEffect(() => {
-    const backAction = () => {
-      Alert.alert('Đăng xuất!', 'Bạn có chắc chắn?', [
-        {
-          text: 'Cancel',
-          onPress: () => null,
-          style: 'cancel',
-        },
-        {text: 'YES', onPress: () => navigation.navigate("LoginStack")},
-      ]);
-      return true;
-    };
-
-    const backHandler = BackHandler.addEventListener(
-      'hardwareBackPress',
-      backAction,
-    );
-
-    return () => backHandler.remove();
-  }, []);
   
   return (
     <View style={styles.container}>
@@ -217,7 +206,7 @@ const HomeScreen = () => {
                 style={styles.datePickerButton}
               >
                 <Text style={styles.lightGrayText}>Ngày khởi hành</Text>
-                <Text style={styles.dateText}>{ ngayKhoiHanh}</Text>
+                <Text style={styles.dateText}>{ngayKhoiHanh.substring(0,10)}</Text>
               </TouchableOpacity>
             </View>
             <View style={styles.centerContainer}>
@@ -270,7 +259,7 @@ const HomeScreen = () => {
                   style={styles.datePickerButton}
                 >
                   <Text style={styles.lightGrayText}>Ngày về</Text>
-                  <Text style={styles.dateText}>{data['ngayVe']}</Text>
+                  <Text style={styles.dateText}>{ngayVe.substring(0,10)} </Text>
                 </TouchableOpacity>
               </View>
             </View>
