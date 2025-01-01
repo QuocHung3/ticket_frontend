@@ -13,6 +13,7 @@ import VerifyPayment from "../screens/Booking/VerifyPayment";
 import FindTripV from "../screens/Booking/FindTripV";
 import ChoosePickUpDropOffV from "../screens/Booking/ChoosePickUpDropOffV";
 import SelectSeatsV from "../screens/Booking/SelectSeatsV";
+import PaymentScreen from "../screens/Payment/PaymentScreen";
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 const BookingStack = () => {

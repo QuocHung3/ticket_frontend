@@ -51,6 +51,8 @@ export type RootStackParamList = {
   SelectSeatV:{ someParam: string };
   ChoosePickUpDropOffV:undefined
   VerifyPayment: { transactionId: string };
+  PaymentScreen: undefined;
+  'payment-sheet': undefined;
 };
 
 export type RootStackProps<T extends keyof RootStackParamList> = {

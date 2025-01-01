@@ -23,7 +23,7 @@ const NotificationScreen = () => {
 
   useEffect(()=> {
     try {
-      axios.post('http://192.168.31.45:9999/api/getThongBao',{idUser: data["id_nguoidung"]})
+      axios.post('http://192.168.194.157:9999/api/getThongBao',{idUser: data["id_nguoidung"]})
       .then(response => {
         if(response && response.data) {
           setListTB(response.data.data)

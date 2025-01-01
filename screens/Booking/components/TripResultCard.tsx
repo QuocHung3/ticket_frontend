@@ -53,7 +53,7 @@ const TripResultCard = ({noiDi,noiDen,dataProp}) => {
           </Text>
         </View>
         <View style={styles.seatsContainer}>
-          <Text style={styles.seatsText}>Còn chỗ trống</Text>
+          <Text style={styles.seatsText}>Còn {dataProp.GheConTrong} chỗ trống</Text>
         </View>
       </View>
 

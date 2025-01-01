@@ -53,7 +53,7 @@ export default function VerifyOTPScreen() {
       return;
     }
     try {
-      await axios.post('http://192.168.31.45:9999/api/verify-code',{email:data["email"],code: authText})
+      await axios.post('http://192.168.194.157:9999/api/verify-code',{email:data["email"],code: authText})
       .then(response => {
         if(response && response.data) {
           if(!response.data.success) {
@@ -111,7 +111,7 @@ export default function VerifyOTPScreen() {
 
     //  api đăng kí tài khoản
     try {
-      await axios.post('http://192.168.31.45:9999/api/addUser',{email:data["email"],matkhau: password,sdt:phone,ten:name})
+      await axios.post('http://192.168.194.157:9999/api/addUser',{email:data["email"],matkhau: password,sdt:phone,ten:name})
       .then(response => {
         if(response && response.data) {
           if(response.status !== 200) {

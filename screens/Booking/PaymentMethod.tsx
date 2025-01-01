@@ -73,10 +73,6 @@ const PaymentOption = () => {
             </View>
           </View>
         </TouchableOpacity>
-
-        <Text style={styles.supportText}>
-          Hỗ trợ nhiều ví điện tử cùng hơn 42 ngân hàng
-        </Text>
       </ScrollView>
       <View style={styles.bottomButtons}>
         <TouchableOpacity style={styles.cancelButton}>

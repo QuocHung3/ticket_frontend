@@ -23,13 +23,17 @@ const ChoosePickUpDropOff = () => {
   const [dataDiemDen,setDataDiemDen] = useState([]);
   const [diemDon,setDiemDon] = useState("");
   const [diemTra,setDiemTra] = useState("");
+  const [selection, setSelection] = useState('option1');
+  const [selectionT, setSelectionT] = useState('option1');
+  const [diemDonC,setDiemDonC] = useState("");
+  const [diemTraC,setDiemTraC] = useState("");
 
 
   useEffect(() => {
     try {
       setDiemTra("");
 
-      axios.post('http://192.168.31.45:9999/api/DiaDiem',{diaDiem: diemDon ? data["noiDen"] : data["noiDi"]})
+      axios.post('http://192.168.194.157:9999/api/DiaDiem',{diaDiem: diemDon ? data["noiDen"] : data["noiDi"]})
       .then(response => {
         if(response && response.data) {
           console.log(response.data.data)
@@ -45,11 +49,30 @@ const ChoosePickUpDropOff = () => {
   },[diemDon])
 
   const handleConfirmDestination = () => {
+    let donTai = "Số 27 Nguyễn Tường Phổ, Hoà Minh , Liên Chiểu, Đà Nẵng.";
+    let traTai = "Thôn 3, Krông Jing, M'ĐrắK, Đắk Lắk.";
+    if(selection === "option1") {
+      if(!diemDonC) {
+        Toast.show({type:'error', text1: "Nhập đủ thông tin đón/trả"})
+      return;
+      }
+      
+      donTai = diemDonC;
+    }
+    if(selectionT === "option1") {
+      if(!diemTraC) {
+        Toast.show({type:'error', text1: "Nhập đủ thông tin đón/trả"})
+        return;
+      }
+      traTai = diemTraC;
+    }
     if(!diemDon || !diemTra) {
       Toast.show({type:'error', text1: "Nhập đủ điểm đón, trả"})
       return;
     }
-    setData({...data,diemDon,diemTra});
+
+
+    setData({...data,diemDon,diemTra,donTai,traTai});
 
     navigation.navigate(data['ngayVe'] ? "FindTripV" : "BookingInfomation")
   };
@@ -66,7 +89,41 @@ const ChoosePickUpDropOff = () => {
                 <Text style={styles.chooseTypeButtonAddress}>
                   {diemDon || "Chọn điểm đón ..."}
                 </Text>
-                {diemDon &&<Text onPress={() => setDiemDon("")} style={styles.clearButton}>X</Text>}
+                
+                {diemDon && 
+                <View style={styles.clearContainer}>
+                  <Text onPress={() => setDiemDon("")} style={styles.clearButton}>X</Text>
+                    <View style={styles.radioGroup}>
+                      <TouchableOpacity
+                        style={styles.radioButton}
+                        onPress={() => setSelection('option1')}
+                      >
+                        <View style={[styles.circle, selection === 'option1' && styles.selected]} />
+                        <Text style={styles.radioText}>Địa chỉ đón cụ thể</Text>
+                      </TouchableOpacity>
+                      <TouchableOpacity
+                        style={styles.radioButton}
+                        onPress={() => setSelection('option2')}
+                      >
+                        <View style={[styles.circle, selection === 'option2' && styles.selected]} />
+                        <Text style={styles.radioText}>Đón tại nhà xe</Text>
+                      </TouchableOpacity>
+                    </View>
+                    <View style={styles.output}>
+                      {selection === 'option1' ? (
+                        <TextInput
+                          style={styles.input}
+                          onChangeText={(text) => setDiemDonC(text)}
+                          value={diemDonC}
+                          placeholder="Nhập nội dung..."
+                          placeholderTextColor="#999"
+                        />
+                      ) : (
+                        <Text style={styles.textOutput}>Địa chỉ: Số 27 Nguyễn Tường Phổ, Hoà Minh , Liên Chiểu, Đà Nẵng.</Text>
+                      )}
+                    </View>
+                </View>
+                }
               </View>
               {diemDon && 
                 <View>
@@ -74,7 +131,39 @@ const ChoosePickUpDropOff = () => {
                 <Text style={styles.chooseTypeButtonAddress}>
                   {diemTra || "Chọn điểm trả ..."} 
                 </Text>
+                <View style={styles.clearContainer}>
                 <Text onPress={() => setDiemTra("")} style={styles.clearButton}>X</Text>
+                <View style={styles.radioGroup}>
+                      <TouchableOpacity
+                        style={styles.radioButton}
+                        onPress={() => setSelectionT('option1')}
+                      >
+                        <View style={[styles.circle, selectionT === 'option1' && styles.selected]} />
+                        <Text style={styles.radioText}>Địa chỉ dừng</Text>
+                      </TouchableOpacity>
+                      <TouchableOpacity
+                        style={styles.radioButton}
+                        onPress={() => setSelectionT('option2')}
+                      >
+                        <View style={[styles.circle, selectionT === 'option2' && styles.selected]} />
+                        <Text style={styles.radioText}>Dừng tại nhà xe</Text>
+                      </TouchableOpacity>
+                    </View>
+                    <View style={styles.output}>
+                      {selectionT === 'option1' ? (
+                        <TextInput
+                          style={styles.input}
+                          onChangeText={(text) => setDiemTraC(text)}
+                          value={diemTraC}
+                          placeholder="Dừng tại..."
+                          placeholderTextColor="#999"
+                        />
+                      ) : (
+                        <Text style={styles.textOutput}>Địa chỉ: Thôn 3, Krông Jing, M'ĐrắK, Đắk Lắk.</Text>
+                      )}
+                    </View>
+                </View>
+                
               </View>
               }
             </View>
@@ -184,6 +273,51 @@ const styles = StyleSheet.create({
   },
   pointInfo: {
     marginLeft: 10,
+  },
+  radioGroup: {
+    flexDirection: 'row',
+    marginBottom: 20,
+  },
+  radioButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginHorizontal: 10,
+  },
+  circle: {
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    borderWidth: 2,
+    borderColor: '#007BFF',
+    marginRight: 10,
+  },
+  selected: {
+    backgroundColor: '#007BFF',
+  },
+  radioText: {
+    fontSize: 16,
+    color: '#333',
+  },
+  output: {
+    width: '100%',
+    alignItems: 'center',
+  },
+  clearContainer: {
+    marginBottom: 20
+  },
+  input: {
+    width: '100%',
+    height: 40,
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 5,
+    paddingHorizontal: 10,
+    backgroundColor: '#fff',
+    color: '#333',
+  },
+  textOutput: {
+    fontSize: 16,
+    color: '#333',
   },
   pointName: {
     fontSize: 16,

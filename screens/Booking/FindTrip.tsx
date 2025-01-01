@@ -21,6 +21,7 @@ import { useNavigation } from "@react-navigation/native";
 import { navigation } from "../../types/stackParamList";
 import axios from "axios";
 import Toast from "react-native-toast-message";
+import moment from "moment";
 
 const HeaderImg = require("../../assets/app_img/home_img.jpg");
 
@@ -123,16 +124,36 @@ const FindTrip = () => {
     noiDen = data["noiDen"]
   }
   
+  
   useEffect(() => {
     try {
       console.log(data["noiDi"])
-      axios.post('http://192.168.31.45:9999/api/AllChuyenXe',{diemdi:data["noiDi"]})
+      axios.post('http://192.168.194.157:9999/api/AllChuyenXe',{diemdi:data["noiDi"],diemden:data["noiDen"],ngayKhoiHanh:data["ngayKhoiHanh"]})
       .then(response => {
         if(response && response.data) {
-          setDataChuyenXe(response.data.data)
+          const now = new Date();
+          const currentDay = now.toISOString().split("T")[0];
+          const currentTime = now.getHours() * 60 + now.getMinutes();
+
+          const filteredData = response.data.data.filter(item => {
+            const ngayDi = item.NgayDi.split("T")[0];
+            const gioDiParts = item.GioDi.split(":");
+            const gioDiInMinutes = parseInt(gioDiParts[0]) * 60 + parseInt(gioDiParts[1]);
+          
+            // Nếu ngày đi là ngày hiện tại và giờ đi lớn hơn giờ hiện tại 2 giờ, loại bỏ
+            if (ngayDi === currentDay && gioDiInMinutes > currentTime + 120) {
+              return false;
+            }
+            return true;
+          });
+
+          setDataChuyenXe(filteredData)
         }
       })
+          
+          
       .catch(error => {
+        console.log(error)
         Toast.show({
           type: 'error',
           text1: "Không có chuyến"
@@ -201,7 +222,7 @@ const FindTrip = () => {
             <View style={styles.dateTextContainer}>
               <Text style={styles.dateTextHeader}>{"VÉ ĐI"}</Text>
               <Text style={styles.dateText}>Khởi hành</Text>
-              <Text style={styles.dateText}>{data["ngayKhoiHanh"].substring(0,10)}</Text>
+              <Text style={styles.dateText}>{data["ngayKhoiHanh"] && data["ngayKhoiHanh"].substring(0,10)}</Text>
             </View>
             <TouchableOpacity>
               <Entypo name="chevron-right" size={24} color={APP_COLORS.white} />

@@ -4,6 +4,7 @@ import Naivgation from "./router";
 import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
 import { ToastProvider } from 'react-native-toast-notifications';
 import Toast from 'react-native-toast-message';
+import { StripeProvider } from '@stripe/stripe-react-native';
 
 export const DataContext = createContext({
   data: {
@@ -18,6 +19,9 @@ export default function App() {
 
   return (
     <DataContext.Provider value={{data, setData}}>
+      <StripeProvider
+        publishableKey="pk_test_51QcQOUJBpWVJbeYZEzHcQuRISBIYaROseKmGXdTgymYc1FPxexPwn0ZXMI1MpCyHqswcVo56B2kchQ79iFni7DrJ00uX46RSVj" // Thay bằng Publishable Key từ Stripe
+      >
       <ToastProvider>
         <GestureHandlerRootView style={{ flex: 1 }}>
           <BottomSheetModalProvider>
@@ -26,6 +30,7 @@ export default function App() {
           </BottomSheetModalProvider>
         </GestureHandlerRootView>
       </ToastProvider>
+      </StripeProvider>
     </DataContext.Provider>
 
     

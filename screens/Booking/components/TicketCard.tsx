@@ -4,10 +4,9 @@ import { DataContext } from "../../../App";
 import APP_COLORS from "../../../constants/color";
 import tinycolor from "tinycolor2";
 
-const TicketCard = () => {
+const TicketCard = ({type}) => {
   const {data,setData} =useContext(DataContext);
-
-  const [date, time] = data['ngayKhoiHanh'].split(" ");
+  const [date, time] = type === "roundtrip" ? data['ngayVe'].split(" "):data['ngayKhoiHanh'].split(" ");
   const [hour, minute] = time.split(":").map(Number);
 
   return (
@@ -28,7 +27,7 @@ const TicketCard = () => {
 
           <View>
             <Text style={styles.label}>Ghế</Text>
-            {data['viTriCho'].map((value,index) => 
+            {data[type === "roundtrip" ? 'viTriChoV': 'viTriCho'].map((value,index) => 
               <Text key={index} style={styles.seat}>{value}</Text>
             )}
             <Text style={styles.label}>Loại xe</Text>
@@ -40,12 +39,12 @@ const TicketCard = () => {
 
         <View style={styles.lowerSection}>
           <View>
-            <Text style={styles.location}>{data["noiDi"]}</Text>
+            <Text style={styles.location}>{data[type === "roundtrip" ? "noiDen" : "noiDi"]}</Text>
             <Text style={styles.priceLabel}>Giá vé</Text>
           </View>
           <View style={styles.rightAlign}>
-            <Text style={styles.location}>{data["noiDen"]}</Text>
-            <Text style={styles.price}>{data["giaVe"]}đ</Text>
+            <Text style={styles.location}>{data[type === "roundtrip" ? "noiDi" : "noiDen"]}</Text>
+            <Text style={styles.price}>{data[type === "roundtrip" ? "giaVeV" : "giaVe"]}đ</Text>
           </View>
         </View>
       </View>

@@ -3,62 +3,85 @@ import {
   StyleSheet,
   Text,
   View,
-  Image,
   TouchableOpacity,
-  TextInput,
+  Alert,
   ActivityIndicator,
-  Animated,
-  ViewStyle,
 } from "react-native";
 import React, { useEffect, useRef, useState ,useContext} from "react";
 import { DataContext } from "../../App";
 import Header from "../../components/common/Header";
 import BookingStep from "./components/BookingStep";
 import APP_COLORS from "../../constants/color";
-import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import TicketCard from "./components/TicketCard";
 import { useNavigation } from "@react-navigation/native";
 import { navigation } from "../../types/stackParamList";
 import axios from "axios";
 import Toast from "react-native-toast-message";
-
-const bankInfo = {
-  bank: "VIETINBANK",
-  accountHolder: "TUAN TRUNG",
-  accountNumber: "111V90677380"
-};
-
+import { useStripe } from '@stripe/stripe-react-native';
 
 const Payment = () => {
   const navigation = useNavigation<navigation<"BookingStack">>();
-  const animationHeight = useRef(new Animated.Value(0)).current;
-  const [isOpen, setIsOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const {data,setData} = useContext(DataContext);
+
+  const { initPaymentSheet, presentPaymentSheet } = useStripe();
+  const [clientSecret, setClientSecret] = useState(null);
+  
+    const fetchPaymentSheetParams = async () => {
+      try {
+        const response = await fetch('http://192.168.194.157:9999/api/payment-sheet', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json', 
+          },
+          body: JSON.stringify({
+            giaVe: data["giaVe"], 
+          }),
+        });
+        const { paymentIntent } = await response.json();
+        setClientSecret(paymentIntent);
+      } catch (error) {
+        console.error('Error fetching payment sheet parameters:', error);
+        Alert.alert('Lỗi', 'Không thể lấy thông số bảng thanh toán.');
+      }
+    };
+  
+    const initializePaymentSheet = async () => {
+      if (!clientSecret) return;
+  
+      const { error } = await initPaymentSheet({
+        paymentIntentClientSecret: clientSecret,
+        merchantDisplayName: 'QuocHung',
+      });
+  
+      if (error) {
+        console.error('Lỗi không thể tạo bảng thanh toán:', error);
+        Alert.alert('Lỗi!', error.message);
+      }
+
+      await openPaymentSheet();
+    };
+  
+    const openPaymentSheet = async () => {
+      const { error } = await presentPaymentSheet();
+  
+      if (error) {
+        Alert.alert('Lỗi!', "Lỗi thanh toán");
+      } else {
+        Alert.alert('Thành công', 'Thanh toán hoàn tất!');
+      }
+
+      await handlePayment("Đã thanh toán");
+    };
+  
+    useEffect(() => {
+      fetchPaymentSheetParams();
+    }, []);
 
   useEffect(() => {
     console.log(data);
   },[])
   
-
-  const toggleAccordion = () => {
-    const finalValue = isOpen ? 0 : 350;
-    setIsOpen(!isOpen);
-
-    Animated.timing(animationHeight, {
-      toValue: finalValue,
-      duration: 300,
-      useNativeDriver: false,
-    }).start();
-  };
-
-  const bankDetailsStyle = (isOpen: boolean): ViewStyle => ({
-    padding: 16,
-    borderRadius: 8,
-    marginBottom: 16,
-    borderWidth: isOpen ? 1 : 0,
-    borderColor: APP_COLORS.primary,
-  });
   const [timeLeft, setTimeLeft] = useState(15 * 60);
 
   useEffect(() => {
@@ -78,7 +101,14 @@ const Payment = () => {
     return result;
   }
 
-  const handlePayment = async () => {
+  const handlePayLater = async () => {
+    setData({...data, trangThaiThanhToan: "Chưa thanh toán"})
+
+    await handlePayment("Chưa thanh toán");
+    navigation.navigate("VerifyPayment");
+  }
+
+  const handlePayment = async (trangThai) => {
     setLoading(true);
     try {
       const rcode =  generateRandomCode(6);
@@ -94,10 +124,10 @@ const Payment = () => {
         gioKHV: data["ngayVe"],
         viTriCho: data["viTriCho"],
         viTriChoV: data["viTriChoV"],
-        hinhThuc: "Chuyển khoản", 
+        hinhThuc: trangThai === "Chưa thanh toán" ? "Thanh toán khi lên xe" : "Chuyển khoản", 
         soTien: data["giaVe"],
         soTienV: data["giaVeV"],
-        trangThaiThanhToan: "Đã thanh toán",
+        trangThaiThanhToan: trangThai,
         noiDi: data["noiDi"],
         noiDen: data["noiDen"],
         diemDon: data["diemDon"],
@@ -111,10 +141,13 @@ const Payment = () => {
         id_xeV: data["idXeV"],
         email: data["email"],
         soXe: data["soXe"],
-        soXeV: data["soXeV"]
+        soXeV: data["soXeV"],
+        donTai: data["donTai"],
+        donTaiV: data["donTaiV"],
+        traTaiV: data["traTaiV"]
       }
 
-      await axios.post('http://192.168.31.45:9999/api/addTicket',dataVe)
+      await axios.post('http://192.168.194.157:9999/api/addTicket',dataVe)
       .then(response => {
         if(response && response.data) {
           if(response.status !== 200) {
@@ -130,6 +163,7 @@ const Payment = () => {
               type: 'success',
               text1: "Đặt vé thành công!"
             });
+            navigation.navigate("VerifyPayment");
           }
         }
       })
@@ -152,7 +186,7 @@ const Payment = () => {
         return;
     }
     
-    navigation.navigate("VerifyPayment");
+    
   }
 
   return (
@@ -178,87 +212,9 @@ const Payment = () => {
             dưới đây
           </Text>
 
-          {/* QR Payment Section */}
-          <View style={styles.qrSection}>
-            <Text style={styles.paymentMethod}>Thanh toán bằng mã QR</Text>
-            <View style={styles.qrContainer}>
-              <Image
-                source={require("../../assets/app_img/qr-code.png")}
-                style={styles.qrImage}
-              />
-              <TouchableOpacity style={styles.saveButton}>
-                <MaterialIcons
-                  name="download"
-                  size={24}
-                  color={APP_COLORS.white}
-                />
-                <Text style={styles.saveButtonText}>Lưu ảnh</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-
-          {/* Bank Account Details */}
-          <View style={styles.bankDetailsHeader}>
-            <Text style={styles.bankDetailsTitle}>Không thể quét mã QR?</Text>
-            <TouchableOpacity
-              style={styles.bankDetailsToggle}
-              onPress={toggleAccordion}
-            >
-              <Text style={styles.bankDetailsToggle}>
-                {isOpen ? "Thu gọn" : "Tự nhập thông tin"}
-              </Text>
-            </TouchableOpacity>
-          </View>
-          <Animated.View style={{ height: animationHeight }}>
-            <View style={bankDetailsStyle(isOpen)}>
-              <View style={styles.bankInfoRow}>
-                <Text style={styles.bankLabel}>Ngân hàng</Text>
-                <Text style={styles.bankValue}>{bankInfo.bank}</Text>
-              </View>
-              <View style={styles.bankInfoRow}>
-                <Text style={styles.bankLabel}>Chủ tài khoản</Text>
-                <Text style={styles.bankValue}>{bankInfo.accountHolder}</Text>
-              </View>
-              <View style={styles.bankInfoColumn}>
-                <Text style={styles.bankLabel}>Số tài khoản</Text>
-                <View style={styles.bankValueContainer}>
-                  <Text style={styles.bankValue}>{bankInfo.accountNumber}</Text>
-                  <TouchableOpacity>
-                    <Text style={styles.copyButtonText}>Sao chép</Text>
-                  </TouchableOpacity>
-                </View>
-              </View>
-              <View style={styles.bankInfoColumn}>
-                <Text style={styles.bankLabel}>Tổng tiền</Text>
-                <View style={styles.bankValueContainer}>
-                  <Text style={styles.bankValue}>{data['giaVe']}</Text>
-                  <TouchableOpacity>
-                    <Text style={styles.copyButtonText}>Sao chép</Text>
-                  </TouchableOpacity>
-                </View>
-              </View>
-              <View style={styles.bankInfoRow}>
-                <Text style={styles.bankLabel}>Nội dung</Text>
-                <Text style={styles.bankValue}>Không bắt buộc</Text>
-              </View>
-            </View>
-          </Animated.View>
-
-          <TicketCard />
-
-          {/* Discount Code Section */}
-          <View style={styles.discountSection}>
-            <Text style={styles.discountTitle}>Bạn có mã giảm giá?</Text>
-            <View style={styles.discountInputContainer}>
-              <TextInput
-                style={styles.discountInput}
-                placeholder="Nhập mã giảm giá"
-              />
-              <TouchableOpacity style={styles.applyButton}>
-                <Text style={styles.applyButtonText}>Áp dụng</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
+          <TicketCard type={""} />
+          {data["ngayVe"] && <TicketCard type={"roundtrip"} />}
+          
 
           {/* Total Amount */}
           <View style={styles.totalSection}>
@@ -280,18 +236,18 @@ const Payment = () => {
         <TouchableOpacity
           style={styles.payedButton}
         >
-          <Text style={styles.payedButtonText}>Tôi đã chuyển khoản</Text>
+          <Text style={styles.payedButtonText}><ActivityIndicator /></Text>
         </TouchableOpacity>
         :
         <TouchableOpacity
           style={styles.payedButton}
-          onPress={handlePayment}
+          onPress={initializePaymentSheet}
         >
-          <Text style={styles.payedButtonText}>Tôi đã chuyển khoản</Text>
+          <Text style={styles.payedButtonText}>Thanh toán bằng Stripe</Text>
         </TouchableOpacity>
         }
-        <TouchableOpacity style={styles.paymentLatterButton} onPress={() => {}}>
-          <Text style={styles.paymentLatterButtonText}>Chuyển khoản sau</Text>
+        <TouchableOpacity style={styles.paymentLatterButton} onPress={handlePayLater}>
+          <Text style={styles.paymentLatterButtonText}>Thanh toán khi lên xe</Text>
         </TouchableOpacity>
       </View>
     </View>

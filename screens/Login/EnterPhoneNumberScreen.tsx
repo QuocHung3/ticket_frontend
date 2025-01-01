@@ -51,7 +51,7 @@ export default function EnterPhoneNumberScreen() {
     }
     
     try {
-      await axios.post('http://192.168.31.45:9999/api/send-verification',{email})
+      await axios.post('http://192.168.194.157:9999/api/send-verification',{email})
       .then(response => {
         if(response && response.data) {
           setLoading(false);
@@ -87,17 +87,18 @@ export default function EnterPhoneNumberScreen() {
 
 
   const handleLogin = async () => {
+    setLoading(true);
     if(!password || !phoneNumber ) {
         Toast.show({
             type: 'error',
             text1: "Nhập tất cả thông tin để đăng nhập!"
         });
+        setLoading(false)
       return;
     }
 
     try {
-      setLoading(true);
-        await axios.post('http://192.168.31.45:9999/api/loginUser',{sdt: phoneNumber,matkhau: password})
+        await axios.post('http://192.168.194.157:9999/api/loginUser',{sdt: phoneNumber,matkhau: password})
         .then(response => {
           if(response && response.data) {
             if(response.status !== 200) {
@@ -115,6 +116,7 @@ export default function EnterPhoneNumberScreen() {
           }
         })
         .catch(error => {
+          setLoading(false)
             Toast.show({
                 type: 'error',
                 text1: "Tài khoản hoặc mật khẩu không đúng!"
@@ -122,6 +124,7 @@ export default function EnterPhoneNumberScreen() {
               return;
         });
       } catch (error) {
+        setLoading(false)
         Toast.show({
             type: 'error',
             text1: "Tài khoản hoặc mật khẩu không đúng!"
@@ -153,6 +156,7 @@ export default function EnterPhoneNumberScreen() {
               <TextInput
                 style={styles.input}
                 placeholder="Nhập mật khẩu"
+                secureTextEntry={true}
                 onChangeText={(text) => setPassword(text)}
                 placeholderTextColor={APP_COLORS.lightGray}
               />

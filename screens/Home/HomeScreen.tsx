@@ -22,6 +22,7 @@ import { useNavigation } from "@react-navigation/native";
 import { navigation } from "../../types/stackParamList";
 import tinycolor from "tinycolor2";
 import Toast from "react-native-toast-message";
+import dayjs from "dayjs";
 const HomeImg = require("../../assets/app_img/home_img.jpg");
 
 const { width: SCREEN_WIDTH } = Dimensions.get("screen");
@@ -54,7 +55,7 @@ const HomeScreen = () => {
     try {
       setData({...data,ngayKhoiHanh,ngayVe: ngayVe});
 
-      axios.get('http://192.168.31.45:9999/api/AllTinhThanh')
+      axios.get('http://192.168.194.157:9999/api/AllTinhThanh')
       .then(response => {
         if(response && response.data) {
           const dataTT= response.data.data.map((val)=> {
@@ -101,14 +102,12 @@ const HomeScreen = () => {
   const handleFindTrip = () => {
     if(!selectedNoiDi || !selectedNoiDen) {
       Toast.show({type:"error",text1: "Nhập thông tin tìm kiếm"})
-      
       return;
     }
-    setData({...data,noiDi: selectedNoiDi,noiDen: selectedNoiDen})
+    setData({...data,noiDi: selectedNoiDi,noiDen: selectedNoiDen, ngayKhoiHanh: dayjs(ngayKhoiHanh, 'DD/MM/YYYY').format('YYYY/MM/DD'),ngayVe: ngayVe})
 
     navigation.navigate("BookingStack")
   }
-  console.log(ngayVe)
 
   useEffect(() => {
     if(data && data["ngayKhoiHanh"]){

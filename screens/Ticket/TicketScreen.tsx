@@ -31,7 +31,7 @@ const TicketScreen = () => {
   useEffect(()=> {
     try {
 
-      axios.get('http://192.168.31.45:9999/api/getAllVe')
+      axios.get('http://192.168.194.157:9999/api/getAllVe')
       .then(response => {
         if(response && response.data) {
           setListVeDat(response.data.data.filter(ve => ve.TrangThaiVe === "Đã đặt"))

@@ -5,8 +5,6 @@ import {
   View,
   Image,
   TouchableOpacity,
-  Animated,
-  ViewStyle,
 } from "react-native";
 import React, { useContext, useRef, useState } from "react";
 import { DataContext } from "../../App";
@@ -22,7 +20,7 @@ const VerifyPayment = () => {
   const {data,setData} = useContext(DataContext);
 
   const handleBackHome =() => {
-    setData({id_nguoidung:data["id_nguoidung"]})
+    setData({id_nguoidung:data["id_nguoidung"],noiDi:data["noiDi"],noiDen:data["noiDen"],ngayKhoiHanh: data["ngayKhoiHanh"]})
 
     navigation.navigate("Home")
   }
@@ -30,11 +28,11 @@ const VerifyPayment = () => {
   const navigation = useNavigation<navigation<"BookingStack">>();
   return (
     <View style={styles.container}>
-      <Header title="Thanh toán thành công" />
-      <BookingStep currentStep={4} />
+      <Header title="Đặt vé thành công" />
       <ScrollView showsVerticalScrollIndicator={false}>
         <View style={styles.content}>
-          <TicketCard /> 
+          <Text style={styles.sectionTitle}>Thanh toán: {!data["trangThaiThanhToan"] ? "Đã thanh toán" :"Thanh toán khi lên xe"} </Text>
+          <TicketCard type={data["ngayVe"] ? "roundtrip": ""}/> 
         </View>
       </ScrollView>
 

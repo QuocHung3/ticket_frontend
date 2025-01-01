@@ -12,6 +12,7 @@ import WebViewScreen from "../screens/WebViewScreen";
 import AccountStack from "./AccountStack";
 import LoginStack from "./LoginStack";
 import ChooseLocationScreen from "../screens/Booking/ChooseLocation";
+import PaymentScreen from "../screens/Payment/PaymentScreen";
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 const Naivgation = () => {
@@ -27,6 +28,7 @@ const Naivgation = () => {
           />
         <Stack.Screen name="RootTab" component={RootTab} />
         <Stack.Screen name="TicketInfo" component={TicketInfoScreen} />
+        <Stack.Screen name="payment-sheet" component={PaymentScreen} />
         <Stack.Screen
           name="ChooseDate"
           component={ChooseDate}

@@ -31,7 +31,7 @@ const SelectSeats = () => {
 
   useEffect(() => {
     try {
-      axios.post('http://192.168.31.45:9999/api/AllVTCho',{idChuyen:data["idChuyen"]})
+      axios.post('http://192.168.194.157:9999/api/AllVTCho',{idChuyen:data["idChuyen"]})
       .then(response => {
         if(response && response.data) {
           response.data.data.forEach(seat => {
@@ -65,7 +65,7 @@ const SelectSeats = () => {
   };
 
   const handleConfirmSeats = () => {
-    setData({...data,viTriCho: selectedSeats,giaVe: selectedSeats.length * 350000})
+    setData({...data,viTriCho: selectedSeats,giaVe: selectedSeats?.length * 350000})
     console.log(data)
     navigation.navigate("ChoosePickUpDropOff");
   }

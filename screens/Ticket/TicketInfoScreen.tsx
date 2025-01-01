@@ -17,7 +17,7 @@ const TicketInfoScreen = ({route}) => {
       if(cho.length > 5) cho = data.ViTriCho.split(" ");
       else cho = [data.ViTriCho]
  
-      axios.post('http://192.168.31.45:9999/api/cancelTicket',
+      axios.post('http://192.168.194.157:9999/api/cancelTicket',
       {trangThaiVe: "Đã huỷ",ID_Ve:data.ID_Ve,viTriCho:cho,id_chuyenXe:data.ID_ChuyenXe})
       .then(response => {
         if(response && response.data) {
