@@ -51,7 +51,7 @@ export default function EnterPhoneNumberScreen() {
     }
     
     try {
-      await axios.post('http://192.168.194.157:9999/api/send-verification',{email})
+      await axios.post('http://192.168.31.45:9999/api/send-verification',{email})
       .then(response => {
         if(response && response.data) {
           setLoading(false);
@@ -98,7 +98,7 @@ export default function EnterPhoneNumberScreen() {
     }
 
     try {
-        await axios.post('http://192.168.194.157:9999/api/loginUser',{sdt: phoneNumber,matkhau: password})
+        await axios.post('http://192.168.31.45:9999/api/loginUser',{sdt: phoneNumber,matkhau: password})
         .then(response => {
           if(response && response.data) {
             if(response.status !== 200) {

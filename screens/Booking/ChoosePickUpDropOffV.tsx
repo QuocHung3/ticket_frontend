@@ -33,7 +33,7 @@ const ChoosePickUpDropOff = () => {
     try {
       setDiemTra("");
 
-      axios.post('http://192.168.194.157:9999/api/DiaDiem',{diaDiem: diemDon ? data["noiDi"] : data["noiDen"]})
+      axios.post('http://192.168.31.45:9999/api/DiaDiem',{diaDiem: diemDon ? data["noiDi"] : data["noiDen"]})
       .then(response => {
         if(response && response.data) {
           console.log(response.data.data)

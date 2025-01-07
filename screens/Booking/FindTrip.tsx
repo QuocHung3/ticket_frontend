@@ -128,7 +128,7 @@ const FindTrip = () => {
   useEffect(() => {
     try {
       console.log(data["noiDi"])
-      axios.post('http://192.168.194.157:9999/api/AllChuyenXe',{diemdi:data["noiDi"],diemden:data["noiDen"],ngayKhoiHanh:data["ngayKhoiHanh"]})
+      axios.post('http://192.168.31.45:9999/api/AllChuyenXe',{diemdi:data["noiDi"],diemden:data["noiDen"],ngayKhoiHanh:data["ngayKhoiHanh"]})
       .then(response => {
         if(response && response.data) {
           const now = new Date();

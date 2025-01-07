@@ -29,7 +29,7 @@ const Payment = () => {
   
     const fetchPaymentSheetParams = async () => {
       try {
-        const response = await fetch('http://192.168.194.157:9999/api/payment-sheet', {
+        const response = await fetch('http://192.168.31.45:9999/api/payment-sheet', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json', 
@@ -67,6 +67,7 @@ const Payment = () => {
   
       if (error) {
         Alert.alert('Lỗi!', "Lỗi thanh toán");
+        return;
       } else {
         Alert.alert('Thành công', 'Thanh toán hoàn tất!');
       }
@@ -147,7 +148,7 @@ const Payment = () => {
         traTaiV: data["traTaiV"]
       }
 
-      await axios.post('http://192.168.194.157:9999/api/addTicket',dataVe)
+      await axios.post('http://192.168.31.45:9999/api/addTicket',dataVe)
       .then(response => {
         if(response && response.data) {
           if(response.status !== 200) {

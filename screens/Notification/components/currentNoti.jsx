@@ -26,7 +26,7 @@ const CurrentNoti = ({data}) => {
             </View>
           <View>
             <Text style={styles.label}>Ngày</Text>
-            <Text style={styles.normalText}>{data.Ngay}</Text>
+            <Text style={styles.normalText}>{data.Ngay?.substring(0,10)}</Text>
           </View>
           <View>
             <Text style={styles.label}>Giờ</Text>

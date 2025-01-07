@@ -34,7 +34,12 @@ const HomeScreen = () => {
   const [dataTinhThanh, setDataTinhThanh] = useState([]);
   const [ngayKhoiHanh, setNgayKhoiHanh] = useState(()=> {
     const ngay = new Date();
-    return ngay.toLocaleDateString();
+      const yyyy = ngay.getFullYear();
+      const mm = String(ngay.getMonth() + 1).padStart(2, '0'); 
+      const dd = String(ngay.getDate()).padStart(2, '0'); 
+
+      const formattedDate = `${yyyy}/${mm}/${dd}`;
+      return formattedDate;
   });
   const [isOneWay, setIsOneWay] = React.useState(true);
 
@@ -43,7 +48,12 @@ const HomeScreen = () => {
   useEffect(() => {
     if(!ngayKhoiHanh) {
       const ngay = new Date();
-      setNgayKhoiHanh(ngay.toLocaleDateString());
+      const yyyy = ngay.getFullYear();
+      const mm = String(ngay.getMonth() + 1).padStart(2, '0'); 
+      const dd = String(ngay.getDate()).padStart(2, '0'); 
+
+      const formattedDate = `${yyyy}/${mm}/${dd}`;
+      setNgayKhoiHanh(formattedDate);
     }
   })
 
@@ -55,7 +65,7 @@ const HomeScreen = () => {
     try {
       setData({...data,ngayKhoiHanh,ngayVe: ngayVe});
 
-      axios.get('http://192.168.194.157:9999/api/AllTinhThanh')
+      axios.get('http://192.168.31.45:9999/api/AllTinhThanh')
       .then(response => {
         if(response && response.data) {
           const dataTT= response.data.data.map((val)=> {

@@ -123,7 +123,7 @@ const FindTripV = () => {
   
   useEffect(() => {
     try {
-      axios.post('http://192.168.194.157:9999/api/AllChuyenXe',{diemdi:data["noiDen"],diemden:data["noiDi"],ngayKhoiHanh:data["ngayVe"]})
+      axios.post('http://192.168.31.45:9999/api/AllChuyenXe',{diemdi:data["noiDen"],diemden:data["noiDi"],ngayKhoiHanh:data["ngayVe"]})
       .then(response => {
         if(response && response.data) {
           setDataChuyenXe(response.data.data)

@@ -83,7 +83,7 @@ const AccountScreen = () => {
 
   useEffect(() => {
     try {
-      axios.post('http://192.168.194.157:9999/api/getUser',{idUser:data["id_nguoidung"]})
+      axios.post('http://192.168.31.45:9999/api/getUser',{idUser:data["id_nguoidung"]})
       .then(response => {
         if(response && response.data) {
           setUser(response.data.data[0]);

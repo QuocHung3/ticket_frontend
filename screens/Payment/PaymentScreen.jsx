@@ -8,7 +8,7 @@ const PaymentScreen = () => {
 
   const fetchPaymentSheetParams = async () => {
     try {
-      const response = await fetch('http://192.168.194.157:9999/api/payment-sheet', {
+      const response = await fetch('http://192.168.31.45:9999/api/payment-sheet', {
         method: 'POST',
       });
       const { paymentIntent } = await response.json();
