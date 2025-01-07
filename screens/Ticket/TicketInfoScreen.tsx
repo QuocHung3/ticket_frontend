@@ -1,4 +1,4 @@
-import { View, Text, ScrollView, StyleSheet, TouchableOpacity, Button } from "react-native";
+import { View, Text, ScrollView, StyleSheet, TouchableOpacity, Alert } from "react-native";
 import React, { useState } from "react";
 import Header from "../../components/common/Header";
 import APP_COLORS from "../../constants/color";
@@ -7,13 +7,99 @@ import Toast from "react-native-toast-message";
 import { useNavigation } from "@react-navigation/native";
 import { navigation } from "../../../ticket_frontend/types/stackParamList";
 import Modal from "../../components/common/Modal";
+import * as Sharing from 'expo-sharing';
+import * as Print from 'expo-print';
+import * as FileSystem from 'expo-file-system';
 
 const TicketInfoScreen = ({route}) => {
   const [visibleCancel,setVisibleCancel] = useState(false);
   const data = route.params;
   const navigation = useNavigation<navigation<"RootTab">>();
-  
 
+  console.log(data)
+  
+  const ticket = {
+    code: data.code,
+    name: 'Nguyen Van A',
+    phone: data.SDT,
+    trip: `${data.noiDi} - ${data.noiDen}`,
+    seat: data.ViTriCho,
+    departure: data["GioKhoiHanh"]?.substring(0,10),
+    time: data["GioKhoiHanh"]?.substring(11,19),
+  };
+
+  const generateAndSharePDF = async () => {
+    try {
+      const htmlContent = `
+        <html>
+          <head>
+            <style>
+              body {
+                font-family: Arial, sans-serif;
+                padding: 20px;
+                font-size: 14px;
+                line-height: 1.6;
+              }
+              h1 {
+                text-align: center;
+                color: #333;
+              }
+              .info {
+                margin-bottom: 20px;
+              }
+              .label {
+                font-weight: bold;
+                color: #555;
+              }
+              .footer {
+                text-align: center;
+                margin-top: 20px;
+                font-size: 12px;
+                color: #888;
+              }
+            </style>
+          </head>
+          <body>
+            <h1>Nhà Xe Tuấn Trung</h1>
+            <div class="info">
+              <p><span class="label">Mã vé:</span> ${ticket.code}</p>
+              <p><span class="label">Tên khách hàng:</span> ${ticket.name}</p>
+              <p><span class="label">Số điện thoại:</span> ${ticket.phone}</p>
+              <p><span class="label">Chuyến:</span> ${ticket.trip}</p>
+              <p><span class="label">Ghế:</span> ${ticket.seat}</p>
+              <p><span class="label">Ngày khởi hành:</span> ${ticket.departure}</p>
+              <p><span class="label">Giờ khởi hành:</span> ${ticket.time}</p>
+            </div>
+            <div class="footer">
+              &copy; 2025 Nhà Xe Tuấn Trung | Số 1, Đường ABC, Thành phố XYZ
+            </div>
+          </body>
+        </html>
+      `;
+
+      // Tạo file PDF
+    const { uri } = await Print.printToFileAsync({ html: htmlContent });
+
+    // Tạo đường dẫn mới với tên file custom
+    const newFileName = `${FileSystem.documentDirectory}ve-xe-khach-${Date.now()}.pdf`;
+
+    // Di chuyển file để đổi tên
+    await FileSystem.moveAsync({
+      from: uri,
+      to: newFileName,
+    });
+
+    // Chia sẻ file PDF
+    if (await Sharing.isAvailableAsync()) {
+      await Sharing.shareAsync(newFileName);
+    } else {
+      alert('Không thể chia sẻ file');
+    }
+    } catch (error) {
+      Alert.alert('Lỗi', 'Không thể tạo hoặc chia sẻ file PDF');
+      console.error(error);
+    }
+  };
 
   const handleCancel = () => {
     try {
@@ -136,6 +222,9 @@ const TicketInfoScreen = ({route}) => {
             <Text style={styles.label}>Trạng thái</Text>
             <Text style={[styles.value, styles.unpaid]}>{data.TrangThaiThanhToan}</Text>
           </View>
+          <TouchableOpacity onPress={generateAndSharePDF}>
+            <View style={styles.buttonX}><Text style={styles.buttonContent}>Xuất Vé</Text></View>
+          </TouchableOpacity>
           <TouchableOpacity onPress={() => setVisibleCancel(true)}>
             <View style={styles.button}><Text style={styles.buttonContent}>Huỷ Vé</Text></View>
           </TouchableOpacity>
@@ -163,9 +252,18 @@ const styles = StyleSheet.create({
     backgroundColor: APP_COLORS.white,
   },
   button: {
+    backgroundColor: APP_COLORS.black,
+    height: 50,
+    borderRadius: 16,
+    justifyContent: "center",
+    alignItems: "center",
+    
+  },
+  buttonX: {
     backgroundColor: APP_COLORS.blue,
     height: 50,
     borderRadius: 16,
+    marginVertical: 20,
     justifyContent: "center",
     alignItems: "center",
     
@@ -230,6 +328,17 @@ const styles = StyleSheet.create({
 
     opacity: 0.8,
     marginBottom: 8,
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#2d3e50',
+    marginBottom: 20,
+  },
+  buttonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
   },
 });
 
